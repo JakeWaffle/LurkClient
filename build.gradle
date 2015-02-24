@@ -1,0 +1,10 @@
+apply plugin: 'java'
+
+group = 'com.lcsc.cs.lurkclient'
+version = '1.0'
+
+description = """"""
+
+repositories {
+    mavenCentral()
+}
