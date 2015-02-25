@@ -1,9 +1,11 @@
 package com.lcsc.cs.lurkclient;
 
-import com.lcsc.cs.lurkclient.scenes.*;
+import com.lcsc.cs.lurkclient.states.*;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
+import java.awt.Container;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -11,34 +13,67 @@ import java.util.HashMap;
  *
  * @author Student
  */
-public class Main {
-    private String currentSceneName     = "NULL";
-    private SceneInterface currentScene;
-    private Map<String, SceneInterface> possibleScenes;
+public class Main extends JFrame{
+    private Container                   contentPane;
 
-    public void initializeStates() {
-        this.possibleScenes = new HashMap<String, SceneInterface>();
+    private String                      currentStateName    = "NULL";
+    private StateInterface              currentState;
 
-        this.possibleScenes.put("Login", new Login());
+    public Main() {
+        super();
+        this.contentPane = this.getContentPane();
     }
 
-    public void changeScene(String nextState) {
-        this.currentSceneName   = nextState;
-        this.currentScene       = this.possibleScenes.get(this.currentSceneName);
+    private void changeState(String nextState) {
+        this.currentStateName   = nextState;
+
+        Class<?> clazz = null;
+        try {
+            //The nextState class is assumed to exist within this package!
+            clazz = Class.forName("com.lcsc.cs.lurkclient.states."+nextState);
+            this.currentState       = (StateInterface)clazz.newInstance();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        this.contentPane.removeAll();
+        JPanel newScene         = this.currentState.createState();
+        this.contentPane.add(newScene);
+
+        this.validate();
+        this.setVisible(true);
     }
 
     public void mainLoop() {
+        //The game will start out in the Login state.
+        this.changeState("Login");
+
         boolean done = false;
         while (!done) {
-            //primaryStage.setScene(scene);
-            //primaryStage.show();
+            String nextState = this.currentState.run();
+
+            if (nextState.equals("Quit")) {
+                done = true;
+            }
+            else {
+                this.changeState(nextState);
+            }
         }
+
+        //Clean up stuff and close application here...
+        System.exit(0);
     }
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        new Main().mainLoop();
+        Main main = new Main();
+
+        main.mainLoop();
     }
 }
