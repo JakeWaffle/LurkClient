@@ -2,9 +2,7 @@ package com.lcsc.cs.lurkclient;
 
 import com.lcsc.cs.lurkclient.scenes.*;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
-import javafx.scene.Scene;
+import javax.swing.JFrame;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -13,35 +11,34 @@ import java.util.HashMap;
  *
  * @author Student
  */
-public class Main extends Application {
-    private String currentScene     = "Login";
-    
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Lurk Client");
+public class Main {
+    private String currentSceneName     = "NULL";
+    private SceneInterface currentScene;
+    private Map<String, SceneInterface> possibleScenes;
 
-        boolean done = false;
-        while (!done) {
-            //primaryStage.setScene(scene);
-            primaryStage.show();
-        }
-    }
+    public void initializeStates() {
+        this.possibleScenes = new HashMap<String, SceneInterface>();
 
-    public Map<String, SceneInterface> initializeStates() {
-        Map<String, SceneInterface> possibleScenes = new HashMap<String, SceneInterface>();
-
-        possibleScenes.put("Login", new Login());
-
-        return possibleScenes;
+        this.possibleScenes.put("Login", new Login());
     }
 
     public void changeScene(String nextState) {
+        this.currentSceneName   = nextState;
+        this.currentScene       = this.possibleScenes.get(this.currentSceneName);
+    }
 
+    public void mainLoop() {
+        boolean done = false;
+        while (!done) {
+            //primaryStage.setScene(scene);
+            //primaryStage.show();
+        }
     }
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        new Main().mainLoop();
     }
 }
