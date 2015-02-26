@@ -24,7 +24,7 @@ public class Main extends JFrame{
         this.contentPane = this.getContentPane();
     }
 
-    private void changeState(String nextState) {
+    private void changeState(String nextState, Map<String,String> nextStateParams) {
         this.currentStateName   = nextState;
 
         Class<?> clazz = null;
@@ -40,8 +40,10 @@ public class Main extends JFrame{
             e.printStackTrace();
         }
 
+        this.currentState.init(nextStateParams);
+
         this.contentPane.removeAll();
-        JPanel newScene         = this.currentState.createState();
+        JPanel newScene             = this.currentState.createState();
         this.contentPane.add(newScene);
 
         this.validate();
@@ -50,27 +52,26 @@ public class Main extends JFrame{
 
     public void mainLoop() {
         //The game will start out in the Login state.
-        this.changeState("Login");
+        this.changeState("Login", null);
 
         boolean done = false;
         while (!done) {
-            String nextState = this.currentState.run();
+            done = this.currentState.run();
 
-            if (nextState.equals("Quit")) {
-                done = true;
+            if (done == true) {
+                break;
             }
-            else {
-                this.changeState(nextState);
-            }
+
+            String nextState                    = this.currentState.getNextState();
+            Map<String,String> nextStateParams  = this.currentState.getNextStateParams();
+
+            this.changeState(nextState, nextStateParams);
         }
 
         //Clean up stuff and close application here...
         System.exit(0);
     }
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
         Main main = new Main();
 
