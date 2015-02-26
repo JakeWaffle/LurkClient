@@ -2,6 +2,7 @@ package com.lcsc.cs.lurkclient.states;
 
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import java.awt.GridBagLayout;
 
 /**
  * Created by Student on 2/24/2015.
@@ -12,7 +13,7 @@ public class Login implements StateInterface {
     public Login() {this.finished = false;}
 
     public JPanel createState() {
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel(new GridBagLayout());
 
         JLabel label = new JLabel("Hello World");
         panel.add(label);
@@ -22,9 +23,7 @@ public class Login implements StateInterface {
 
     public String run() {
         System.out.println("OIASdoaosdnfoiasndofiahnsd");
-        while (!this.finished) {
-            this.finished = true;
-        }
+        while (!this.finished) {}
         return "Quit";
     }
 }

@@ -22,6 +22,7 @@ public class Main extends JFrame{
     public Main() {
         super();
         this.contentPane = this.getContentPane();
+        this.setSize(1024,768);
     }
 
     private void changeState(String nextState) {
