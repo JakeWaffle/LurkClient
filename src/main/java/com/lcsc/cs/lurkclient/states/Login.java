@@ -28,10 +28,9 @@ public class Login implements StateInterface {
     }
 
     public boolean run() {
-        System.out.println("OIASdoaosdnfoiasndofiahnsd");
+        System.out.println("Running the Login state!");
 
-        while (!this.finished) {
-        }
+        while (!this.finished) {}
         return true;
     }
 
@@ -45,5 +44,5 @@ public class Login implements StateInterface {
         return params;
     }
 
-    public void cleanUp() {}
+    public void cleanUp() {this.finished = true;}
 }

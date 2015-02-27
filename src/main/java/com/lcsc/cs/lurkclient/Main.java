@@ -50,6 +50,8 @@ public class Main extends JFrame{
         this.setVisible(true);
     }
 
+    //This is called when the 'x' in the window is pressed. It is designed to manually close the window/program
+    //and also inform the current state that it needs to clean up its stuff.
     private void closeWindow() {
         this.currentState.cleanUp();
         this.setVisible(false);
@@ -57,6 +59,13 @@ public class Main extends JFrame{
         System.exit(0);
     }
 
+    //This handles loading a new state by updating the currentState variable and fetching a new
+    //JPanel for the window.
+    //@param nextState          This should be the EXACT class name of one of the classes in the
+    //                          com.lcsc.cs.lurkclient.states package. This class name is used to dynamically load
+    //                          the corresponding class for the next state.
+    //@param nextStateParams    This contains all of the parameters that are to be passed to the next state. These
+    //                          parameters were received from the previous state.
     private void changeState(String nextState, Map<String,String> nextStateParams) {
         this.currentStateName   = nextState;
 
@@ -83,6 +92,8 @@ public class Main extends JFrame{
         this.setVisible(true);
     }
 
+    //This is the main loop for the gui state machine! It handles changing states and determining when the end
+    //of the program has been reached.
     public void mainLoop() {
         //The game will start out in the Login state.
         this.changeState("Login", null);
