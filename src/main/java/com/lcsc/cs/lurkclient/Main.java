@@ -89,6 +89,7 @@ public class Main extends JFrame{
         this.contentPane.add(newScene);
 
         this.validate();
+        this.repaint();
         this.setVisible(true);
     }
 
