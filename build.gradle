@@ -5,6 +5,9 @@ apply plugin: 'application'
 group = 'com.lcsc.cs.lurkclient'
 version = '1.0'
 
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
 description = """"""
 
 mainClassName  = 'com.lcsc.cs.lurkclient.Main'
@@ -13,15 +16,13 @@ repositories {
     mavenCentral()
 }
 
-task uberjar(type: Jar) {
-    from files(sourceSets.main.output.classesDir)
-    from {configurations.compile.collect {zipTree(it)}} {
-        exclude "META-INF/*.SF"
-        exclude "META-INF/*.DSA"
-        exclude "META-INF/*.RSA"
-    }
-
+jar {
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest {
         attributes 'Main-Class': 'com.lcsc.cs.lurkclient.Main'
     }
+}
+
+dependencies {
+    compile 'log4j:log4j:1.2.17'
 }

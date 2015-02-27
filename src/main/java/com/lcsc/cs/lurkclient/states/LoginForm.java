@@ -1,5 +1,7 @@
 package com.lcsc.cs.lurkclient.states;
 
+import org.apache.log4j.Logger;
+
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import java.awt.GridBagLayout;
@@ -9,11 +11,13 @@ import java.util.HashMap;
 /**
  * Created by Student on 2/24/2015.
  */
-public class Login implements StateInterface {
+public class LoginForm implements StateInterface {
+    static Logger logger = Logger.getLogger(LoginForm.class);
+
     private boolean finished;
     private String  nextState;
 
-    public Login() {this.finished = false;}
+    public LoginForm() {this.finished = false;}
 
     //There shouldn't be any parameters for this state.
     public void init(Map<String,String> params) {}
@@ -28,10 +32,16 @@ public class Login implements StateInterface {
     }
 
     public boolean run() {
-        System.out.println("Running the Login state!");
+        logger.debug("Running the Login state!");
 
-        while (!this.finished) {}
-        return true;
+        while (!this.finished) {
+            try {
+                Thread.sleep(1000);
+            } catch(InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        return false;
     }
 
     public String getNextState() {

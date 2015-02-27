@@ -2,33 +2,36 @@ package com.lcsc.cs.lurkclient;
 
 import com.lcsc.cs.lurkclient.states.*;
 
+import org.apache.log4j.Logger;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JOptionPane;
 import javax.swing.WindowConstants;
+import java.awt.*;
 import java.awt.event.WindowEvent;
 
-
-import java.awt.Container;
-import java.lang.Override;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
  *
  * @author Student
  */
 public class Main extends JFrame{
-    private Container                   contentPane;
+    static Logger logger = Logger.getLogger(Main.class);
 
-    private String                      currentStateName    = "NULL";
+    private Container                   contentPane;
+    private String                      currentStateName = "NULL";
     private StateInterface              currentState;
 
     public Main() {
         super();
         this.contentPane = this.getContentPane();
+        this.setTitle("Lurk Protocol Client");
         this.setSize(1024,768);
         this.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+
+        this.setLayout(new GridBagLayout());
 
         //We will handle the closing of the window manually so that states can be cleaned up nicely
         //before the program quits randomly.
@@ -53,6 +56,7 @@ public class Main extends JFrame{
     //This is called when the 'x' in the window is pressed. It is designed to manually close the window/program
     //and also inform the current state that it needs to clean up its stuff.
     private void closeWindow() {
+        logger.debug("Interrupting current state and closing application: "+this.currentStateName);
         this.currentState.cleanUp();
         this.setVisible(false);
         this.dispose();
@@ -67,7 +71,12 @@ public class Main extends JFrame{
     //@param nextStateParams    This contains all of the parameters that are to be passed to the next state. These
     //                          parameters were received from the previous state.
     private void changeState(String nextState, Map<String,String> nextStateParams) {
-        this.currentStateName   = nextState;
+        this.currentStateName = nextState;
+
+        logger.debug("Next State: "+nextState);
+        if (nextStateParams != null) {
+            logger.debug("Next State Params:" + nextStateParams.toString());
+        }
 
         Class<?> clazz = null;
         try {
@@ -89,6 +98,7 @@ public class Main extends JFrame{
         this.contentPane.add(newScene);
 
         this.validate();
+        this.repaint();
         this.setVisible(true);
     }
 
@@ -96,7 +106,7 @@ public class Main extends JFrame{
     //of the program has been reached.
     public void mainLoop() {
         //The game will start out in the Login state.
-        this.changeState("Login", null);
+        this.changeState("ServerInfoForm", null);
 
         boolean done = false;
         while (!done) {
