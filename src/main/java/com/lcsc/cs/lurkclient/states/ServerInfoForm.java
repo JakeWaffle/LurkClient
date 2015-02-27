@@ -16,12 +16,14 @@ import java.util.Map;
 public class ServerInfoForm implements StateInterface  {
     static Logger logger = Logger.getLogger(ServerInfoForm.class);
 
+    private boolean endProgram;
     private boolean finished;
     private String  nextState;
 
     private Map<String,String> nextStateParams;
 
     public ServerInfoForm() {
+        this.endProgram         = false;
         this.finished           = false;
         //This is just the default in case the server couldn't be connected to or something?
         this.nextState          = "ServerInfo";
@@ -141,7 +143,7 @@ public class ServerInfoForm implements StateInterface  {
                 Thread.currentThread().interrupt();
             }
         }
-        return false;
+        return this.endProgram;
     }
 
     public String getNextState() {
@@ -156,6 +158,7 @@ public class ServerInfoForm implements StateInterface  {
 
     public void cleanUp() {
         Messenger.disconnect();
+        this.endProgram = true;
         this.finished = true;
     }
 }

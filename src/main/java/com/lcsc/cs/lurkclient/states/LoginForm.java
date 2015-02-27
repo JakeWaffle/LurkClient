@@ -14,10 +14,14 @@ import java.util.HashMap;
 public class LoginForm implements StateInterface {
     static Logger logger = Logger.getLogger(LoginForm.class);
 
+    private boolean endProgram;
     private boolean finished;
     private String  nextState;
 
-    public LoginForm() {this.finished = false;}
+    public LoginForm() {
+        this.endProgram = false;
+        this.finished   = false;
+    }
 
     //There shouldn't be any parameters for this state.
     public void init(Map<String,String> params) {}
@@ -41,7 +45,7 @@ public class LoginForm implements StateInterface {
                 Thread.currentThread().interrupt();
             }
         }
-        return false;
+        return this.endProgram;
     }
 
     public String getNextState() {
@@ -54,5 +58,8 @@ public class LoginForm implements StateInterface {
         return params;
     }
 
-    public void cleanUp() {this.finished = true;}
+    public void cleanUp() {
+        this.endProgram = true;
+        this.finished = true;
+    }
 }
