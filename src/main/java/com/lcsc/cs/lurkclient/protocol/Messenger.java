@@ -46,10 +46,13 @@ public class Messenger {
         }
     }
 
+    //TODO Callbacks need to be able to be registered so States can react to the server.
+    public static void registerCallback() {}
+
     //This will send a message to the server
-    public static void sendMessage(Message message) {
+    public static void sendMessage(Command command) {
         try {
-            out.write(message.toBytes());
+            out.write(command.toBytes());
         } catch(IOException e) {
             logger.error("Couldn't write to server", e);
         }

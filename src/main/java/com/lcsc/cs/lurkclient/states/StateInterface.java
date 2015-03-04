@@ -24,7 +24,7 @@ public interface StateInterface {
     //This is called after run finishes and specifies what the next state is going to be.
     //@return A string that should be a class name (without the package) of a class that implements
     //          this interface.
-    public String getNextState();
+    public State getNextState();
 
     //This returns parameters that will then be passed into the next state's init() method.
     //@return A map that represents the next state's parameters.

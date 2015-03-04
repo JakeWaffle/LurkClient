@@ -21,7 +21,7 @@ public class Main extends JFrame{
     static Logger logger = Logger.getLogger(Main.class);
 
     private Container                   contentPane;
-    private String                      currentStateName = "NULL";
+    private State                       currentStateName = State.NULL_STATE;
     private StateInterface              currentState;
 
     public Main() {
@@ -70,43 +70,48 @@ public class Main extends JFrame{
     //                          the corresponding class for the next state.
     //@param nextStateParams    This contains all of the parameters that are to be passed to the next state. These
     //                          parameters were received from the previous state.
-    private void changeState(String nextState, Map<String,String> nextStateParams) {
-        this.currentStateName = nextState;
-
-        logger.debug("Next State: "+nextState);
+    private void changeState(State nextState, Map<String,String> nextStateParams) {
+        logger.debug("Next State: "+nextState.getClassName());
         if (nextStateParams != null) {
             logger.debug("Next State Params:" + nextStateParams.toString());
         }
 
-        Class<?> clazz = null;
-        try {
-            //The nextState class is assumed to exist within this package!
-            clazz = Class.forName("com.lcsc.cs.lurkclient.states."+nextState);
-            this.currentState       = (StateInterface)clazz.newInstance();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+        if (nextState != State.NULL_STATE) {
+            Class<?> clazz = null;
+            try {
+                //The nextState class is assumed to exist within this package!
+                clazz = Class.forName("com.lcsc.cs.lurkclient.states." + nextState.getClassName());
+                this.currentState = (StateInterface) clazz.newInstance();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+
+            this.currentState.init(nextStateParams);
+
+            this.contentPane.removeAll();
+            JPanel newScene = this.currentState.createState();
+            this.contentPane.add(newScene);
+
+            this.validate();
+            this.repaint();
+            this.setVisible(true);
+
+            this.currentStateName = nextState;
         }
-
-        this.currentState.init(nextStateParams);
-
-        this.contentPane.removeAll();
-        JPanel newScene             = this.currentState.createState();
-        this.contentPane.add(newScene);
-
-        this.validate();
-        this.repaint();
-        this.setVisible(true);
+        else {
+            logger.error(String.format("Can't transition from state %s to NULL_STATE!", this.currentStateName.getClassName()));
+        }
     }
 
     //This is the main loop for the gui state machine! It handles changing states and determining when the end
     //of the program has been reached.
     public void mainLoop() {
         //The game will start out in the Login state.
-        this.changeState("ServerInfoForm", null);
+        this.changeState(State.SERVER_INFO_FORM, null);
 
         boolean done = false;
         while (!done) {
@@ -116,7 +121,7 @@ public class Main extends JFrame{
                 break;
             }
 
-            String nextState                    = this.currentState.getNextState();
+            State nextState                 = this.currentState.getNextState();
             Map<String,String> nextStateParams  = this.currentState.getNextStateParams();
 
             this.changeState(nextState, nextStateParams);

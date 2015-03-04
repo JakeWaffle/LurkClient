@@ -14,11 +14,11 @@ import java.util.Map;
  * Created by Jake on 2/26/2015.
  */
 public class ServerInfoForm implements StateInterface  {
-    static Logger logger = Logger.getLogger(ServerInfoForm.class);
+    static Logger       logger = Logger.getLogger(ServerInfoForm.class);
 
-    private boolean endProgram;
-    private boolean finished;
-    private String  nextState;
+    private boolean     endProgram;
+    private boolean     finished;
+    private State       nextState;
 
     private Map<String,String> nextStateParams;
 
@@ -26,7 +26,7 @@ public class ServerInfoForm implements StateInterface  {
         this.endProgram         = false;
         this.finished           = false;
         //This is just the default in case the server couldn't be connected to or something?
-        this.nextState          = "ServerInfo";
+        this.nextState          = State.SERVER_INFO_FORM;
         this.nextStateParams    = new HashMap<String, String>();
     }
 
@@ -115,7 +115,7 @@ public class ServerInfoForm implements StateInterface  {
                 }
                 if (Messenger.connect(host, port)) {
                     //The server was connected to successfully!
-                    ServerInfoForm.this.nextState   = "LoginForm";
+                    ServerInfoForm.this.nextState   = State.LOGIN_FORM;
                     ServerInfoForm.this.finished    = true;
                 }
                 else {
@@ -146,7 +146,7 @@ public class ServerInfoForm implements StateInterface  {
         return this.endProgram;
     }
 
-    public String getNextState() {
+    public State getNextState() {
         return this.nextState;
     }
 
