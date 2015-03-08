@@ -3,7 +3,8 @@ package com.lcsc.cs.lurkclient;
 import com.lcsc.cs.lurkclient.states.*;
 import com.lcsc.cs.lurkclient.protocol.Messenger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -19,7 +20,7 @@ import java.util.Map;
  * @author Jake Waffle
  */
 public class Main extends JFrame{
-    static Logger logger = Logger.getLogger(Main.class);
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     private Container                   contentPane;
     private State                       currentStateName = State.NULL_STATE;
@@ -29,6 +30,7 @@ public class Main extends JFrame{
     public Main() {
         super();
         this.messenger      = new Messenger();
+        this.messenger.start();
         this.contentPane    = this.getContentPane();
         this.setTitle("Lurk Protocol Client");
         this.setSize(1024,768);
@@ -60,9 +62,17 @@ public class Main extends JFrame{
     //and also inform the current state that it needs to clean up its stuff.
     private void closeWindow() {
         logger.debug("Interrupting current state and closing application: "+this.currentStateName);
-        this.currentState.cleanUp();
+        this.messenger.disconnect();
+        logger.debug("Messenger disconnected");
+        try {
+            this.messenger.join();
+            logger.debug("Joined Messager thread!");
+        } catch (InterruptedException e) {
+            logger.error("Interrupted when joining the Messenger's thread", e);
+        }
         this.setVisible(false);
         this.dispose();
+        this.currentState.cleanUp();
         System.exit(0);
     }
 

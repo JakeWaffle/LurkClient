@@ -2,7 +2,8 @@ package com.lcsc.cs.lurkclient.states;
 
 import com.lcsc.cs.lurkclient.protocol.*;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.event.*;
 import javax.swing.*;
@@ -14,7 +15,7 @@ import java.util.Map;
  * Created by Jake on 2/26/2015.
  */
 public class ServerInfoForm implements StateInterface  {
-    static Logger       logger = Logger.getLogger(ServerInfoForm.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerInfoForm.class);
 
     private boolean     endProgram;
     private boolean     finished;
@@ -167,7 +168,6 @@ public class ServerInfoForm implements StateInterface  {
     }
 
     public void cleanUp() {
-        this.messenger.disconnect();
         this.endProgram = true;
         this.finished = true;
     }

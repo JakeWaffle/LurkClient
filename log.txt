@@ -1,7 +1,0 @@
-2015-03-07 16:58:30 DEBUG Main:77 - Next State: ServerInfoForm
-2015-03-07 16:58:30 DEBUG ServerInfoForm:145 - Running the ServerInfo state!
-2015-03-07 16:58:38 DEBUG Main:77 - Next State: LoginForm
-2015-03-07 16:58:38 DEBUG Main:79 - Next State Params:{}
-2015-03-07 16:58:38 DEBUG LoginForm:112 - Running the Login state!
-2015-03-07 16:58:41 INFO  Messenger:92 - Sending Message to Server:
-CNNCT asdfasdfasdf
