@@ -30,7 +30,7 @@ public class MessageFramer extends Thread {
             try {
                this.serverReader.read(msg);
             } catch (IOException e) {
-                logger.error("Couldn't read input from the server.", e);
+                logger.error("MessageFramer was interrupted probably so it could join its thread.");
             }
 
             List<Response> responses = Response.getResponses(new String(msg));

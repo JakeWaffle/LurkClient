@@ -32,16 +32,21 @@ public class Messenger extends Thread {
     //Then it will send those messages back to all of the listeners that are registered.
     public void run() {
         while (!done) {
-            for (Response response : responseQueue) {
-                for (ResponseListener listener : this.listeners) {
-                    listener.notify(response);
+            while (this.responseQueue.size() > 0) {
+                try {
+                    Response response = this.responseQueue.take();
+                    for (ResponseListener listener : this.listeners) {
+                        listener.notify(response);
+                    }
+                } catch(InterruptedException e) {
+                    logger.error("Interrupted while removing from the response queue.", e);
                 }
             }
 
             try {
                 Thread.sleep(200);
-            } catch(InterruptedException ex) {
-                Thread.currentThread().interrupt();
+            } catch(InterruptedException e) {
+                logger.error("Interrupted while sleeping! I'm really mad!", e);
             }
         }
     }

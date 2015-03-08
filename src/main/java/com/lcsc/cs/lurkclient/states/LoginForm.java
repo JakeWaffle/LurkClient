@@ -107,7 +107,7 @@ public class LoginForm implements StateInterface {
     }
 
     private synchronized void handleLogin(Response response) {
-        System.out.println("Shut up I'm handling it!");
+        System.out.println("\n\nShut up I'm handling a response!\n"+response.toString());
     }
 
     public boolean run() {
