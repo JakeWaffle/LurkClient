@@ -119,9 +119,6 @@ public class ServerInfoForm implements StateInterface  {
                     JOptionPane.showMessageDialog(null, "The port must be a number!", "Invalid Server Info", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                if (ServerInfoForm.this.messenger == null) {
-                    System.out.println("ASIODUHAOIUSNDOASOASDNB");
-                }
                 if (ServerInfoForm.this.messenger.connect(host, port)) {
                     //The server was connected to successfully!
                     ServerInfoForm.this.nextState   = State.LOGIN_FORM;

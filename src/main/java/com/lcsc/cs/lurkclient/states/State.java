@@ -6,6 +6,8 @@ package com.lcsc.cs.lurkclient.states;
 public enum State {
     LOGIN_FORM("LoginForm"),
     SERVER_INFO_FORM("ServerInfoForm"),
+    PLAYER_INFO_FORM("PlayerInfoForm"),
+    GAME("Game"),
     NULL_STATE("NULL");
 
     private final String className;

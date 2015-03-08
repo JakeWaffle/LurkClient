@@ -6,7 +6,7 @@ package com.lcsc.cs.lurkclient.protocol;
 public enum CommandType {
     CONNECT("CNNCT"),
     SET_ATTACK_STAT("ATTCK"),
-    SET_DEFENSE_STATE("DEFNS"),
+    SET_DEFENSE_STAT("DEFNS"),
     SET_REGEN_STAT("REGEN"),
     SET_PLAYER_DESC("DESCR"),
     LEAVE("LEAVE"),

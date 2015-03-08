@@ -33,7 +33,12 @@ public class LoginForm implements StateInterface {
     public void init(Map<String,String> params, Messenger messenger) {
         this.messenger = messenger;
 
-        //messenger.registerListener();
+        this.messenger.registerListener(new ResponseListener() {
+            @Override
+            public void notify(Response response) {
+                LoginForm.this.handleLogin(response);
+            }
+        });
     }
 
     public JPanel createState() {
@@ -75,14 +80,6 @@ public class LoginForm implements StateInterface {
         c.gridy         = 2;
         panel.add(nameTextField, c);
 
-        this.messenger.registerListener(new ResponseListener() {
-            @Override
-            public void notify(Response response) {
-                LoginForm.this.handleLogin(response);
-            }
-        });
-
-
         JButton connectBtn  = new JButton("Login as Player");
 
         oldFont         = connectBtn.getFont();
@@ -107,7 +104,26 @@ public class LoginForm implements StateInterface {
     }
 
     private synchronized void handleLogin(Response response) {
-        System.out.println("\n\nShut up I'm handling a response!\n"+response.toString());
+        switch (response.getResponse()) {
+            case "Name Already Taken":
+            case "Dead Without Health":
+                //I don't think anything should be done in this case?
+                JOptionPane.showMessageDialog(null, response.getResponse(), "Login Response", JOptionPane.INFORMATION_MESSAGE);
+                break;
+            case "New Player":
+                //Switch to the screen where the user enters in his player's data.
+                this.nextState  = State.PLAYER_INFO_FORM;
+                this.finished   = true;
+                break;
+            case "Reprising Player":
+                //Go directly to the game using your old character.
+                this.nextState  = State.GAME;
+                this.finished   = true;
+                break;
+            default:
+                logger.error("Invalid Response for LoginForm:\n"+response.toString());
+                break;
+        }
     }
 
     public boolean run() {

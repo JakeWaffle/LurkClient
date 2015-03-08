@@ -51,8 +51,16 @@ public class Response {
 
     public Response(ResponseType type, String message) {
         this.responseType   = type;
-        this.message        = message;
+        this.message        = message.trim();;
         logger.debug(this.toString());
+    }
+
+    public String getType() {
+        return this.responseType.toString();
+    }
+
+    public String getResponse() {
+        return this.message;
     }
 
     public String toString(){

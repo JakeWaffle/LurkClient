@@ -22,6 +22,8 @@ import java.util.Map;
 public class Main extends JFrame{
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
+    private static final State STARTING_STATE = State.SERVER_INFO_FORM;
+
     private Container                   contentPane;
     private State                       currentStateName = State.NULL_STATE;
     private StateInterface              currentState;
@@ -124,7 +126,7 @@ public class Main extends JFrame{
     //of the program has been reached.
     public void mainLoop() {
         //The game will start out in the Login state.
-        this.changeState(State.SERVER_INFO_FORM, null);
+        this.changeState(STARTING_STATE, null);
 
         boolean done = false;
         while (!done) {

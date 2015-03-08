@@ -108,8 +108,11 @@ public class Messenger extends Thread {
         try {
             logger.info("Sending Message to Server:\n"+command.toString());
             this.out.write(command.toBytes());
+            Thread.sleep(100);
         } catch(IOException e) {
             logger.error("Couldn't write to server", e);
+        } catch(InterruptedException e) {
+            logger.error("Interrupted while sleeping! I'm really mad!", e);
         }
     }
 }
