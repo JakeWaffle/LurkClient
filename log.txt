@@ -1,6 +1,7 @@
-2015-02-26 21:24:58 DEBUG Main:76 - Next State: ServerInfoForm
-2015-02-26 21:24:58 DEBUG ServerInfoForm:137 - Running the ServerInfo state!
-2015-02-26 21:25:09 DEBUG Main:76 - Next State: LoginForm
-2015-02-26 21:25:09 DEBUG Main:78 - Next State Params:{}
-2015-02-26 21:25:09 DEBUG LoginForm:39 - Running the Login state!
-2015-02-26 21:25:13 DEBUG Main:59 - Interrupting current state and closing application: LoginForm
+2015-03-07 16:58:30 DEBUG Main:77 - Next State: ServerInfoForm
+2015-03-07 16:58:30 DEBUG ServerInfoForm:145 - Running the ServerInfo state!
+2015-03-07 16:58:38 DEBUG Main:77 - Next State: LoginForm
+2015-03-07 16:58:38 DEBUG Main:79 - Next State Params:{}
+2015-03-07 16:58:38 DEBUG LoginForm:112 - Running the Login state!
+2015-03-07 16:58:41 INFO  Messenger:92 - Sending Message to Server:
+CNNCT asdfasdfasdf

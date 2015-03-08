@@ -1,6 +1,7 @@
 package com.lcsc.cs.lurkclient;
 
 import com.lcsc.cs.lurkclient.states.*;
+import com.lcsc.cs.lurkclient.protocol.Messenger;
 
 import org.apache.log4j.Logger;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 
 /**
  *
- * @author Student
+ * @author Jake Waffle
  */
 public class Main extends JFrame{
     static Logger logger = Logger.getLogger(Main.class);
@@ -23,10 +24,12 @@ public class Main extends JFrame{
     private Container                   contentPane;
     private State                       currentStateName = State.NULL_STATE;
     private StateInterface              currentState;
+    private Messenger                   messenger;
 
     public Main() {
         super();
-        this.contentPane = this.getContentPane();
+        this.messenger      = new Messenger();
+        this.contentPane    = this.getContentPane();
         this.setTitle("Lurk Protocol Client");
         this.setSize(1024,768);
         this.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
@@ -90,7 +93,7 @@ public class Main extends JFrame{
                 e.printStackTrace();
             }
 
-            this.currentState.init(nextStateParams);
+            this.currentState.init(nextStateParams, this.messenger);
 
             this.contentPane.removeAll();
             JPanel newScene = this.currentState.createState();

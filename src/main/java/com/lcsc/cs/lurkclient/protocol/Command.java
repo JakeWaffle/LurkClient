@@ -22,6 +22,9 @@ public class Command {
     }
 
     public byte[] toBytes() {
-        return message.getBytes();
+        return this.message.getBytes();
+    }
+    public String toString() {
+        return this.message;
     }
 }

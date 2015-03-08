@@ -18,9 +18,12 @@ public class ServerInfoForm implements StateInterface  {
 
     private boolean     endProgram;
     private boolean     finished;
-    private State       nextState;
 
+    private State       nextState;
     private Map<String,String> nextStateParams;
+
+
+    private Messenger messenger;
 
     public ServerInfoForm() {
         this.endProgram         = false;
@@ -31,7 +34,9 @@ public class ServerInfoForm implements StateInterface  {
     }
 
     //There shouldn't be any parameters for this state.
-    public void init(Map<String,String> params) {}
+    public void init(Map<String,String> params, Messenger messenger) {
+        this.messenger = messenger;
+    }
 
     public JPanel createState() {
         JPanel panel            = new JPanel(new GridBagLayout());
@@ -113,7 +118,10 @@ public class ServerInfoForm implements StateInterface  {
                     JOptionPane.showMessageDialog(null, "The port must be a number!", "Invalid Server Info", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                if (Messenger.connect(host, port)) {
+                if (ServerInfoForm.this.messenger == null) {
+                    System.out.println("ASIODUHAOIUSNDOASOASDNB");
+                }
+                if (ServerInfoForm.this.messenger.connect(host, port)) {
                     //The server was connected to successfully!
                     ServerInfoForm.this.nextState   = State.LOGIN_FORM;
                     ServerInfoForm.this.finished    = true;
@@ -143,6 +151,8 @@ public class ServerInfoForm implements StateInterface  {
                 Thread.currentThread().interrupt();
             }
         }
+        this.messenger.clearListeners();
+
         return this.endProgram;
     }
 
@@ -157,7 +167,7 @@ public class ServerInfoForm implements StateInterface  {
     }
 
     public void cleanUp() {
-        Messenger.disconnect();
+        this.messenger.disconnect();
         this.endProgram = true;
         this.finished = true;
     }

@@ -1,5 +1,7 @@
 package com.lcsc.cs.lurkclient.states;
 
+import com.lcsc.cs.lurkclient.protocol.Messenger;
+
 import javax.swing.JPanel;
 import java.util.Map;
 
@@ -10,7 +12,7 @@ public interface StateInterface {
     //This initializes the state.
     //@param params This map should have been passed to this state from the previous state.
     //              getNextStateParams() is the method that returns the parameters for the next state.
-    public void init(Map<String,String> params);
+    public void init(Map<String,String> params, Messenger messenger);
 
     //This will return the JPanel for the current state so the window can be updated.
     //@return A JPanel object filled with all of the things that will be displayed in this state.

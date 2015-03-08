@@ -1,8 +1,6 @@
 package com.lcsc.cs.lurkclient.states;
 
-import com.lcsc.cs.lurkclient.protocol.Command;
-import com.lcsc.cs.lurkclient.protocol.CommandType;
-import com.lcsc.cs.lurkclient.protocol.Messenger;
+import com.lcsc.cs.lurkclient.protocol.*;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -22,13 +20,19 @@ public class LoginForm implements StateInterface {
     private boolean     finished;
     private State       nextState;
 
+    private Messenger   messenger;
+
     public LoginForm() {
         this.endProgram = false;
         this.finished   = false;
     }
 
     //There shouldn't be any parameters for this state.
-    public void init(Map<String,String> params) {}
+    public void init(Map<String,String> params, Messenger messenger) {
+        this.messenger = messenger;
+
+        //messenger.registerListener();
+    }
 
     public JPanel createState() {
         JPanel panel            = new JPanel(new GridBagLayout());
@@ -69,6 +73,14 @@ public class LoginForm implements StateInterface {
         c.gridy         = 2;
         panel.add(nameTextField, c);
 
+        this.messenger.registerListener(new ResponseListener() {
+            @Override
+            public void notify(Response response) {
+                LoginForm.this.handleLogin(response);
+            }
+        });
+
+
         JButton connectBtn  = new JButton("Login as Player");
 
         oldFont         = connectBtn.getFont();
@@ -80,8 +92,7 @@ public class LoginForm implements StateInterface {
             public void actionPerformed(ActionEvent event) {
                 String name = nameTextField.getText();
                 Command cmd = new Command(CommandType.CONNECT, name);
-                Messenger.sendMessage(cmd);
-                //TODO A callback needs to be registered to handle the logging in of the user.
+                LoginForm.this.messenger.sendMessage(cmd);
             }
         });
 
@@ -91,6 +102,10 @@ public class LoginForm implements StateInterface {
         panel.add(connectBtn, c);
 
         return panel;
+    }
+
+    private synchronized void handleLogin(Response response) {
+        System.out.println("Shut up I'm handling it!");
     }
 
     public boolean run() {
@@ -103,6 +118,8 @@ public class LoginForm implements StateInterface {
                 Thread.currentThread().interrupt();
             }
         }
+        messenger.clearListeners();
+
         return this.endProgram;
     }
 
@@ -117,6 +134,7 @@ public class LoginForm implements StateInterface {
     }
 
     public void cleanUp() {
+        this.messenger.disconnect();
         this.endProgram = true;
         this.finished = true;
     }
