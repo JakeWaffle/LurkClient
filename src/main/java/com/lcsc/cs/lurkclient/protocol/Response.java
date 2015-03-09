@@ -51,8 +51,7 @@ public class Response {
 
     public Response(ResponseType type, String message) {
         this.responseType   = type;
-        this.message        = message.trim();;
-        logger.debug(this.toString());
+        this.message        = message.trim();
     }
 
     public String getType() {

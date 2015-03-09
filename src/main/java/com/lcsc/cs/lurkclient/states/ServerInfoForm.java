@@ -50,7 +50,7 @@ public class ServerInfoForm implements StateInterface  {
         title.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.anchor        = GridBagConstraints.NORTH;
+        c.weightx = c.weighty = 1.0;
         c.gridy         = 0;
         panel.add(title, c);
 
@@ -61,8 +61,7 @@ public class ServerInfoForm implements StateInterface  {
         host.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.anchor        = GridBagConstraints.WEST;
-        c.insets        = new Insets(20,0,0,0);
+        c.anchor        = GridBagConstraints.SOUTH;
         c.gridy         = 1;
         panel.add(host, c);
 
@@ -73,8 +72,7 @@ public class ServerInfoForm implements StateInterface  {
         hostTextField.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.gridwidth     = GridBagConstraints.REMAINDER;
-        c.fill          = GridBagConstraints.HORIZONTAL;
+        c.anchor        = GridBagConstraints.NORTH;
         c.gridy         = 2;
         panel.add(hostTextField, c);
 
@@ -85,8 +83,7 @@ public class ServerInfoForm implements StateInterface  {
         port.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.anchor        = GridBagConstraints.WEST;
-        c.insets        = new Insets(20,0,0,0);
+        c.anchor        = GridBagConstraints.SOUTH;
         c.gridy         = 3;
         panel.add(port, c);
 
@@ -97,8 +94,7 @@ public class ServerInfoForm implements StateInterface  {
         portTextField.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.gridwidth     = GridBagConstraints.REMAINDER;
-        c.fill          = GridBagConstraints.HORIZONTAL;
+        c.anchor        = GridBagConstraints.NORTH;
         c.gridy         = 4;
         panel.add(portTextField, c);
 
@@ -132,6 +128,7 @@ public class ServerInfoForm implements StateInterface  {
         });
 
         c               = new GridBagConstraints();
+        c.weightx = c.weighty = 1.0;
         c.insets        = new Insets(20,0,0,0);
         c.gridy         = 5;
         panel.add(connectBtn, c);

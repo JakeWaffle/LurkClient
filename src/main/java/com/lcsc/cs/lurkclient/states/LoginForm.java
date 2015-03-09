@@ -52,7 +52,7 @@ public class LoginForm implements StateInterface {
         title.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.anchor        = GridBagConstraints.NORTH;
+        c.weightx = c.weighty = 1.0;
         c.gridy         = 0;
         panel.add(title, c);
 
@@ -63,8 +63,6 @@ public class LoginForm implements StateInterface {
         name.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.anchor        = GridBagConstraints.WEST;
-        c.insets        = new Insets(20,0,0,0);
         c.gridy         = 1;
         panel.add(name, c);
 
@@ -75,8 +73,6 @@ public class LoginForm implements StateInterface {
         nameTextField.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.gridwidth     = GridBagConstraints.REMAINDER;
-        c.fill          = GridBagConstraints.HORIZONTAL;
         c.gridy         = 2;
         panel.add(nameTextField, c);
 
@@ -96,6 +92,7 @@ public class LoginForm implements StateInterface {
         });
 
         c               = new GridBagConstraints();
+        c.weightx = c.weighty = 1.0;
         c.insets        = new Insets(20,0,0,0);
         c.gridy         = 5;
         panel.add(connectBtn, c);

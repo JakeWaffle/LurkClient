@@ -65,9 +65,11 @@ public class PlayerInfoForm implements StateInterface {
         title.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.anchor        = GridBagConstraints.NORTH;
+        c.weightx = c.weighty = 1.0;
         c.gridy         = 0;
         panel.add(title, c);
+
+        JPanel descrPanel   = new JPanel(new GridBagLayout());
 
         JLabel description = new JLabel("Description");
 
@@ -77,11 +79,10 @@ public class PlayerInfoForm implements StateInterface {
 
         c               = new GridBagConstraints();
         c.anchor        = GridBagConstraints.WEST;
-        c.insets        = new Insets(20,0,0,0);
-        c.gridy         = 1;
-        panel.add(description, c);
+        c.gridy         = 0;
+        descrPanel.add(description, c);
 
-        JTextArea descriptionText = new JTextArea(5, 1);
+        JTextArea descriptionText = new JTextArea(5, 30);
 
         DefaultStyledDocument doc = new DefaultStyledDocument();
         doc.setDocumentFilter(new DocumentSizeFilter(1024*1024));
@@ -93,23 +94,40 @@ public class PlayerInfoForm implements StateInterface {
         descriptionText.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.gridwidth     = GridBagConstraints.REMAINDER;
-        c.fill          = GridBagConstraints.BOTH;
-        c.gridy         = 2;
-        panel.add(new JScrollPane(descriptionText), c);
-        //panel.add(descriptionText, c);
+        c.gridy         = 1;
+        descrPanel.add(new JScrollPane(descriptionText), c);
 
-        JLabel atk      = new JLabel("Attack Stat Points");
+
+        c               = new GridBagConstraints();
+        c.gridy         = 1;
+
+        panel.add(descrPanel, c);
+
+
+        JLabel statLabel= new JLabel("Player Stat Points");
+
+        oldFont         = statLabel.getFont();
+        newFont         = new Font(oldFont.getFontName(), Font.BOLD, 26);
+        statLabel.setFont(newFont);
+
+        c               = new GridBagConstraints();
+        c.insets        = new Insets(20, 0, 5, 0);
+        c.gridy         = 2;
+        panel.add(statLabel, c);
+
+        JPanel statPanel = new JPanel(new GridBagLayout());
+
+        JLabel atk      = new JLabel("Attack");
 
         oldFont         = atk.getFont();
-        newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 24);
+        newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 22);
         atk.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.anchor        = GridBagConstraints.WEST;
-        c.insets        = new Insets(20,0,0,0);
-        c.gridy         = 3;
-        panel.add(atk, c);
+        c.insets        = new Insets(5, 10, 0, 0);
+        c.gridx         = 0;
+        c.gridy         = 0;
+        statPanel.add(atk, c);
 
         final JTextField attackStat    = new JTextField(5);
 
@@ -118,22 +136,21 @@ public class PlayerInfoForm implements StateInterface {
         attackStat.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.gridwidth     = GridBagConstraints.REMAINDER;
-        c.fill          = GridBagConstraints.HORIZONTAL;
-        c.gridy         = 8;
-        panel.add(attackStat, c);
+        c.gridx         = 1;
+        c.gridy         = 0;
+        statPanel.add(attackStat, c);
 
-        JLabel defense  = new JLabel("Defense Stat Points");
+        JLabel defense  = new JLabel("Defense");
 
         oldFont         = defense.getFont();
-        newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 24);
+        newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 22);
         defense.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.anchor        = GridBagConstraints.WEST;
-        c.insets        = new Insets(20,0,0,0);
-        c.gridy         = 9;
-        panel.add(defense, c);
+        c.insets        = new Insets(5, 10, 0, 0);
+        c.gridx         = 0;
+        c.gridy         = 1;
+        statPanel.add(defense, c);
 
         final JTextField defenseStat    = new JTextField(5);
 
@@ -142,22 +159,22 @@ public class PlayerInfoForm implements StateInterface {
         defenseStat.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.gridwidth     = GridBagConstraints.REMAINDER;
-        c.fill          = GridBagConstraints.HORIZONTAL;
-        c.gridy         = 10;
-        panel.add(defenseStat, c);
+        c.anchor        = GridBagConstraints.WEST;
+        c.gridx         = 1;
+        c.gridy         = 1;
+        statPanel.add(defenseStat, c);
 
-        JLabel regen    = new JLabel("Regen Stat Points");
+        JLabel regen    = new JLabel("Regen");
 
         oldFont         = regen.getFont();
-        newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 24);
+        newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 22);
         regen.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.anchor        = GridBagConstraints.WEST;
-        c.insets        = new Insets(20,0,0,0);
-        c.gridy         = 11;
-        panel.add(regen, c);
+        c.insets        = new Insets(5, 10, 0, 0);
+        c.gridx         = 0;
+        c.gridy         = 2;
+        statPanel.add(regen, c);
 
         final JTextField regenStat    = new JTextField(5);
 
@@ -166,10 +183,14 @@ public class PlayerInfoForm implements StateInterface {
         regenStat.setFont(newFont);
 
         c               = new GridBagConstraints();
-        c.gridwidth     = GridBagConstraints.REMAINDER;
-        c.fill          = GridBagConstraints.HORIZONTAL;
-        c.gridy         = 12;
-        panel.add(regenStat, c);
+        c.gridx         = 1;
+        c.gridy         = 2;
+        statPanel.add(regenStat, c);
+
+        c               = new GridBagConstraints();
+        c.gridy         = 3;
+
+        panel.add(statPanel, c);
 
         JButton connectBtn  = new JButton("Submit Player Stats");
 
@@ -217,8 +238,9 @@ public class PlayerInfoForm implements StateInterface {
         });
 
         c               = new GridBagConstraints();
-        c.insets        = new Insets(20,0,0,0);
-        c.gridy         = 13;
+        c.weightx = c.weighty = 1.0;
+        c.gridx         = 0;
+        c.gridy         = 4;
         panel.add(connectBtn, c);
 
         return panel;

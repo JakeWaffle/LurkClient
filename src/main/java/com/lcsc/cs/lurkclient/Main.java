@@ -22,7 +22,7 @@ import java.util.Map;
 public class Main extends JFrame{
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    private static final State STARTING_STATE = State.SERVER_INFO_FORM;
+    private static final State STARTING_STATE = State.GAME;
 
     private Container                   contentPane;
     private State                       currentStateName = State.NULL_STATE;
@@ -38,7 +38,7 @@ public class Main extends JFrame{
         this.setSize(1024,768);
         this.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 
-        this.setLayout(new GridBagLayout());
+        this.setLayout(new BorderLayout());
 
         //We will handle the closing of the window manually so that states can be cleaned up nicely
         //before the program quits randomly.
