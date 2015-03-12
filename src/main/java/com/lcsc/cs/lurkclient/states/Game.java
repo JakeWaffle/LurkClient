@@ -1,8 +1,6 @@
 package com.lcsc.cs.lurkclient.states;
 
-import com.lcsc.cs.lurkclient.game.EntityContainer;
-import com.lcsc.cs.lurkclient.game.EventBox;
-import com.lcsc.cs.lurkclient.game.InputBox;
+import com.lcsc.cs.lurkclient.game.*;
 import com.lcsc.cs.lurkclient.protocol.*;
 import com.lcsc.cs.lurkclient.tools.DocumentSizeFilter;
 import org.slf4j.Logger;
@@ -25,9 +23,11 @@ public class Game implements StateInterface{
     private State           nextState;
 
     private MailMan         mailMan;
+
     private EntityContainer entities;
     private EventBox        eventBox;
     private InputBox        inputBox;
+    private LogicLinker     linker;
 
     public Game() {
         this.endProgram = false;
@@ -127,6 +127,8 @@ public class Game implements StateInterface{
 
     public boolean run() {
         logger.debug("Running the Game state!");
+
+        this.linker = new LogicLinker(this.entities, this.eventBox, this.inputBox);
 
         while (!this.finished) {
             try {
