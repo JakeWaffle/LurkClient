@@ -20,14 +20,14 @@ public enum CommandType {
         this.commandName = commandName;
     }
 
-    public String getCommandName() {
+    public String getCommandHeader() {
         return this.commandName;
     }
 
     public static CommandType fromString(String commandName) {
         if (commandName != null) {
             for (CommandType c : CommandType.values()) {
-                if (commandName.equalsIgnoreCase(c.getCommandName())) {
+                if (commandName.equalsIgnoreCase(c.getCommandHeader())) {
                     return c;
                 }
             }

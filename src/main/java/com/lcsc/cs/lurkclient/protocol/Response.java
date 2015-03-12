@@ -10,9 +10,9 @@ import java.util.ArrayList;
  * Created by Jake on 3/3/2015.
  */
 public class Response {
-    private static final Logger logger = LoggerFactory.getLogger(Response.class);
-    private ResponseType    responseType;
-    private String          message;
+    private static final Logger     logger = LoggerFactory.getLogger(Response.class);
+    private final ResponseType      responseType;
+    private final String            message;
 
     public static List<Response> getResponses(String message) {
         List<Response> responses = new ArrayList<Response>();

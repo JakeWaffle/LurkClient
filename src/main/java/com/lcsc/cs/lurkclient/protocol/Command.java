@@ -9,27 +9,36 @@ import org.slf4j.LoggerFactory;
 public class Command {
     private static final Logger logger = LoggerFactory.getLogger(Command.class);
 
-    private final String message;
+    private final   CommandType type;
+    private         String      body = null;
 
-    public Command(CommandType commandType, String body) {
-        this.message = String.format("%s %s", commandType.getCommandName(), body);
+    public Command(CommandType type, String body) {
+        this.type       = type;
+        this.body       = body;
     }
 
-    public Command(String message) {
-        this.message = message;
+    public Command(CommandType type) {
+        this.type = type;
     }
 
     public CommandType getCommandType() {
-        String cmdText = this.message.substring(0,5);
-        CommandType cmd = CommandType.fromString(cmdText);
+        return this.type;
+    }
 
-        return cmd;
+    private String buildMessage() {
+        String message = this.type.getCommandHeader();
+
+        if (body != null) {
+            message += " "+this.body;
+        }
+
+        return message;
     }
 
     public byte[] toBytes() {
-        return this.message.getBytes();
+        return this.buildMessage().getBytes();
     }
     public String toString() {
-        return this.message;
+        return this.buildMessage();
     }
 }

@@ -11,14 +11,14 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by Jake on 3/7/2015.
  */
-public class MessageFramer extends Thread {
-    private static final Logger logger = LoggerFactory.getLogger(MessageFramer.class);
+public class MailBox extends Thread {
+    private static final Logger logger = LoggerFactory.getLogger(MailBox.class);
 
     private         boolean                 done;
     private         BlockingQueue<Response> responseQueue;
     private         BufferedReader          serverReader;
 
-    public MessageFramer(BlockingQueue<Response> responseQueue, BufferedReader reader) {
+    public MailBox(BlockingQueue<Response> responseQueue, BufferedReader reader) {
         this.done           = false;
         this.responseQueue  = responseQueue;
         this.serverReader   = reader;
@@ -30,7 +30,7 @@ public class MessageFramer extends Thread {
             try {
                this.serverReader.read(msg);
             } catch (IOException e) {
-                logger.error("MessageFramer was interrupted probably so it could join its thread.");
+                logger.error("MailBox was interrupted probably so it could join its thread.");
             }
 
             List<Response> responses = Response.getResponses(new String(msg));

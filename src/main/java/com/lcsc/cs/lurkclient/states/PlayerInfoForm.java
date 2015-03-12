@@ -7,8 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
 
 import java.awt.*;
@@ -27,7 +25,7 @@ public class PlayerInfoForm implements StateInterface {
     private boolean     finished;
     private State       nextState;
 
-    private Messenger   messenger;
+    private MailMan     mailMan;
 
     //These will allow us to handle the messages sent back from the server.
     //They'll tell us which stat the message was meant for.
@@ -43,10 +41,10 @@ public class PlayerInfoForm implements StateInterface {
     }
 
     //There shouldn't be any parameters for this state.
-    public void init(Map<String,String> params, Messenger messenger) {
-        this.messenger = messenger;
+    public void init(Map<String,String> params, MailMan mailMan) {
+        this.mailMan = mailMan;
 
-        this.messenger.registerListener(new ResponseListener() {
+        this.mailMan.registerListener(new ResponseListener() {
             @Override
             public void notify(Response response) {
                 PlayerInfoForm.this.handleStats(response);
@@ -224,16 +222,16 @@ public class PlayerInfoForm implements StateInterface {
                     return;
                 }
                 Command cmd     = new Command(CommandType.SET_PLAYER_DESC, description);
-                PlayerInfoForm.this.messenger.sendMessage(cmd);
+                PlayerInfoForm.this.mailMan.sendMessage(cmd);
 
                 cmd             = new Command(CommandType.SET_ATTACK_STAT, attack);
-                PlayerInfoForm.this.messenger.sendMessage(cmd);
+                PlayerInfoForm.this.mailMan.sendMessage(cmd);
 
                 cmd             = new Command(CommandType.SET_DEFENSE_STAT, defense);
-                PlayerInfoForm.this.messenger.sendMessage(cmd);
+                PlayerInfoForm.this.mailMan.sendMessage(cmd);
 
                 cmd             = new Command(CommandType.SET_REGEN_STAT, regen);
-                PlayerInfoForm.this.messenger.sendMessage(cmd);
+                PlayerInfoForm.this.mailMan.sendMessage(cmd);
             }
         });
 
@@ -287,7 +285,7 @@ public class PlayerInfoForm implements StateInterface {
                 Thread.currentThread().interrupt();
             }
         }
-        messenger.clearListeners();
+        mailMan.clearListeners();
 
         return this.endProgram;
     }

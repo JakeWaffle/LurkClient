@@ -22,7 +22,7 @@ public class LoginForm implements StateInterface {
     private boolean     finished;
     private State       nextState;
 
-    private Messenger   messenger;
+    private MailMan     mailMan;
 
     public LoginForm() {
         this.endProgram = false;
@@ -30,10 +30,10 @@ public class LoginForm implements StateInterface {
     }
 
     //There shouldn't be any parameters for this state.
-    public void init(Map<String,String> params, Messenger messenger) {
-        this.messenger = messenger;
+    public void init(Map<String,String> params, MailMan mailMan) {
+        this.mailMan = mailMan;
 
-        this.messenger.registerListener(new ResponseListener() {
+        this.mailMan.registerListener(new ResponseListener() {
             @Override
             public void notify(Response response) {
                 LoginForm.this.handleLogin(response);
@@ -87,7 +87,7 @@ public class LoginForm implements StateInterface {
             public void actionPerformed(ActionEvent event) {
                 String name = nameTextField.getText();
                 Command cmd = new Command(CommandType.CONNECT, name);
-                LoginForm.this.messenger.sendMessage(cmd);
+                LoginForm.this.mailMan.sendMessage(cmd);
             }
         });
 
@@ -133,7 +133,7 @@ public class LoginForm implements StateInterface {
                 Thread.currentThread().interrupt();
             }
         }
-        messenger.clearListeners();
+        mailMan.clearListeners();
 
         return this.endProgram;
     }

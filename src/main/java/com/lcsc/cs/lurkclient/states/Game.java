@@ -1,5 +1,8 @@
 package com.lcsc.cs.lurkclient.states;
 
+import com.lcsc.cs.lurkclient.game.EntityContainer;
+import com.lcsc.cs.lurkclient.game.EventBox;
+import com.lcsc.cs.lurkclient.game.InputBox;
 import com.lcsc.cs.lurkclient.protocol.*;
 import com.lcsc.cs.lurkclient.tools.DocumentSizeFilter;
 import org.slf4j.Logger;
@@ -8,8 +11,6 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,11 +20,14 @@ import java.util.Map;
 public class Game implements StateInterface{
     private static final Logger logger = LoggerFactory.getLogger(LoginForm.class);
 
-    private boolean     endProgram;
-    private boolean     finished;
-    private State       nextState;
+    private boolean         endProgram;
+    private boolean         finished;
+    private State           nextState;
 
-    private Messenger messenger;
+    private MailMan         mailMan;
+    private EntityContainer entities;
+    private EventBox        eventBox;
+    private InputBox        inputBox;
 
     public Game() {
         this.endProgram = false;
@@ -31,8 +35,11 @@ public class Game implements StateInterface{
     }
 
     //There shouldn't be any parameters for this state.
-    public void init(Map<String,String> params, Messenger messenger) {
-        this.messenger = messenger;
+    public void init(Map<String,String> params, MailMan mailMan) {
+        this.mailMan    = mailMan;
+        this.entities   = new EntityContainer();
+        this.eventBox   = new EventBox();
+        this.inputBox   = new InputBox();
     }
 
     public JPanel createState() {
@@ -67,17 +74,7 @@ public class Game implements StateInterface{
         c.gridx = 0;
         c.gridy = 0;
         listPanel.add(monsterLabel, c);
-
-        // Create some items to add to the list
-        DefaultListModel monsters = new DefaultListModel();
-        monsters.addElement("Monster1");
-        monsters.addElement("Monster2");
-        JList monsterList = new JList(monsters);
-        c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.gridx = 0;
-        c.gridy = 1;
-        listPanel.add(monsterList, c);
+        this.entities.addMonsterList(0, 1, listPanel);
 
         JLabel roomrLabel = new JLabel("Rooms");
 
@@ -91,17 +88,7 @@ public class Game implements StateInterface{
         c.gridx = 0;
         c.gridy = 2;
         listPanel.add(roomrLabel, c);
-
-        // Create some items to add to the list
-        DefaultListModel rooms = new DefaultListModel();
-        rooms.addElement("Room1");
-        rooms.addElement("Room2");
-        JList roomList = new JList(rooms);
-        c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.gridx = 0;
-        c.gridy = 3;
-        listPanel.add(roomList, c);
+        this.entities.addRoomList(0, 3, listPanel);
 
         JLabel playersLabel = new JLabel("Players");
 
@@ -115,17 +102,7 @@ public class Game implements StateInterface{
         c.gridx = 0;
         c.gridy = 4;
         listPanel.add(playersLabel, c);
-
-        // Create some items to add to the list
-        DefaultListModel players = new DefaultListModel();
-        players.addElement("Player1");
-        players.addElement("Player2");
-        JList playerList = new JList(players);
-        c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.gridx = 0;
-        c.gridy = 5;
-        listPanel.add(playerList, c);
+        this.entities.addPlayerList(0, 5, listPanel);
 
         c               = new GridBagConstraints();
         c.gridheight    = 3;
@@ -134,36 +111,8 @@ public class Game implements StateInterface{
         panel.add(listPanel, c);
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
-
-        JTextArea descriptionText = new JTextArea(5, 1);
-
-        DefaultStyledDocument doc = new DefaultStyledDocument();
-        doc.setDocumentFilter(new DocumentSizeFilter(1024*1024));
-        descriptionText.setDocument(doc);
-        descriptionText.setLineWrap(true);
-
-        oldFont         = descriptionText.getFont();
-        newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 20);
-        descriptionText.setFont(newFont);
-
-        c               = new GridBagConstraints();
-        c.weightx = c.weighty = 1.0;
-        c.fill          = GridBagConstraints.BOTH;
-        c.gridx         = 0;
-        c.gridy         = 0;
-        mainPanel.add(new JScrollPane(descriptionText), c);
-
-        JTextField inputBox    = new JTextField(32);
-
-        oldFont         = inputBox.getFont();
-        newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 20);
-        inputBox.setFont(newFont);
-
-        c               = new GridBagConstraints();
-        c.weightx = c.weighty = 1.0;
-        c.fill          = GridBagConstraints.HORIZONTAL;
-        c.gridy         = 1;
-        mainPanel.add(inputBox, c);
+        this.eventBox.addEventBox(0, 0, mainPanel);
+        this.inputBox.addInputBox(0, 1, 50, mainPanel);
 
         c               = new GridBagConstraints();
         c.weightx = c.weighty = 1.0;
@@ -186,7 +135,7 @@ public class Game implements StateInterface{
                 Thread.currentThread().interrupt();
             }
         }
-        messenger.clearListeners();
+        mailMan.clearListeners();
 
         return this.endProgram;
     }

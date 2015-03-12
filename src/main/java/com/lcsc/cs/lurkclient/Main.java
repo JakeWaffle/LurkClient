@@ -1,7 +1,9 @@
 package com.lcsc.cs.lurkclient;
 
+import com.lcsc.cs.lurkclient.protocol.Command;
+import com.lcsc.cs.lurkclient.protocol.CommandType;
+import com.lcsc.cs.lurkclient.protocol.MailMan;
 import com.lcsc.cs.lurkclient.states.*;
-import com.lcsc.cs.lurkclient.protocol.Messenger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +29,12 @@ public class Main extends JFrame{
     private Container                   contentPane;
     private State                       currentStateName = State.NULL_STATE;
     private StateInterface              currentState;
-    private Messenger                   messenger;
+    private MailMan                     mailMan;
 
     public Main() {
         super();
-        this.messenger      = new Messenger();
-        this.messenger.start();
+        this.mailMan = new MailMan();
+        this.mailMan.start();
         this.contentPane    = this.getContentPane();
         this.setTitle("Lurk Protocol Client");
         this.setSize(1024,768);
@@ -64,17 +66,18 @@ public class Main extends JFrame{
     //and also inform the current state that it needs to clean up its stuff.
     private void closeWindow() {
         logger.debug("Interrupting current state and closing application: "+this.currentStateName);
-        this.messenger.disconnect();
-        logger.debug("Messenger disconnected");
+        this.currentState.cleanUp();
+        this.mailMan.sendMessage(new Command(CommandType.LEAVE));
+        this.mailMan.disconnect();
+        logger.debug("MailMan disconnected");
         try {
-            this.messenger.join();
+            this.mailMan.join();
             logger.debug("Joined Messager thread!");
         } catch (InterruptedException e) {
-            logger.error("Interrupted when joining the Messenger's thread", e);
+            logger.error("Interrupted when joining the MailMan's thread", e);
         }
         this.setVisible(false);
         this.dispose();
-        this.currentState.cleanUp();
         System.exit(0);
     }
 
@@ -105,7 +108,7 @@ public class Main extends JFrame{
                 e.printStackTrace();
             }
 
-            this.currentState.init(nextStateParams, this.messenger);
+            this.currentState.init(nextStateParams, this.mailMan);
 
             this.contentPane.removeAll();
             JPanel newScene = this.currentState.createState();
@@ -143,7 +146,7 @@ public class Main extends JFrame{
         }
 
         //Clean up stuff and close application here...
-        System.exit(0);
+        //System.exit(0);
     }
 
     public static void main(String[] args) {

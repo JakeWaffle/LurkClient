@@ -12,8 +12,8 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by Jake on 2/26/2015.
  */
-public class Messenger extends Thread {
-    private static final Logger logger = LoggerFactory.getLogger(Messenger.class);
+public class MailMan extends Thread {
+    private static final Logger logger = LoggerFactory.getLogger(MailMan.class);
 
     private         boolean                 done;
     private         Socket                  sock        = null;
@@ -21,9 +21,9 @@ public class Messenger extends Thread {
     private         BufferedReader          in          = null;
     private         List<ResponseListener>  listeners   = new ArrayList<ResponseListener>();
     private         BlockingQueue<Response> responseQueue;
-    private         MessageFramer           framer;
+    private MailBox framer;
 
-    public Messenger() {
+    public MailMan() {
         this.done = false;
         this.responseQueue = new ArrayBlockingQueue<Response>(20);
     }
@@ -61,7 +61,7 @@ public class Messenger extends Thread {
             this.sock       = new Socket(host, port);
             this.out        = new DataOutputStream(this.sock.getOutputStream());
             this.in         = new BufferedReader(new InputStreamReader(this.sock.getInputStream()));
-            this.framer     = new MessageFramer(this.responseQueue, this.in);
+            this.framer     = new MailBox(this.responseQueue, this.in);
             this.framer.start();
         } catch (UnknownHostException e) {
             success = false;
@@ -79,18 +79,18 @@ public class Messenger extends Thread {
         if (this.sock != null && this.out != null && this.in != null) {
             try {
                 this.framer.stopFramer();
-                logger.debug("Intentionally closing the socket so the MessageFramer isn't blocking on a read anymore!");
+                logger.debug("Intentionally closing the socket so the MailBox isn't blocking on a read anymore!");
                 this.sock.close();
                 this.out.close();
                 this.in.close();
                 //The framer won't join until it's done with its read operation (which is why the socket and reader
                 // are closed!)
                 this.framer.join();
-                logger.debug("Joined MessageFramer thread!");
+                logger.debug("Joined MailBox thread!");
             } catch (IOException e) {
                 logger.error("Couldn't close socket to server!", e);
             } catch(InterruptedException e) {
-                logger.error("Couldn't join the MessageFramer thread.", e);
+                logger.error("Couldn't join the MailBox thread.", e);
             }
         }
     }

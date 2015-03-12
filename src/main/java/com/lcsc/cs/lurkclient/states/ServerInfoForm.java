@@ -17,14 +17,13 @@ import java.util.Map;
 public class ServerInfoForm implements StateInterface  {
     private static final Logger logger = LoggerFactory.getLogger(ServerInfoForm.class);
 
-    private boolean     endProgram;
-    private boolean     finished;
+    private boolean             endProgram;
+    private boolean             finished;
 
-    private State       nextState;
-    private Map<String,String> nextStateParams;
+    private State               nextState;
+    private Map<String,String>  nextStateParams;
 
-
-    private Messenger messenger;
+    private MailMan             mailMan;
 
     public ServerInfoForm() {
         this.endProgram         = false;
@@ -35,8 +34,8 @@ public class ServerInfoForm implements StateInterface  {
     }
 
     //There shouldn't be any parameters for this state.
-    public void init(Map<String,String> params, Messenger messenger) {
-        this.messenger = messenger;
+    public void init(Map<String,String> params, MailMan mailMan) {
+        this.mailMan = mailMan;
     }
 
     public JPanel createState() {
@@ -115,7 +114,7 @@ public class ServerInfoForm implements StateInterface  {
                     JOptionPane.showMessageDialog(null, "The port must be a number!", "Invalid Server Info", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                if (ServerInfoForm.this.messenger.connect(host, port)) {
+                if (ServerInfoForm.this.mailMan.connect(host, port)) {
                     //The server was connected to successfully!
                     ServerInfoForm.this.nextState   = State.LOGIN_FORM;
                     ServerInfoForm.this.finished    = true;
@@ -146,7 +145,7 @@ public class ServerInfoForm implements StateInterface  {
                 Thread.currentThread().interrupt();
             }
         }
-        this.messenger.clearListeners();
+        this.mailMan.clearListeners();
 
         return this.endProgram;
     }
