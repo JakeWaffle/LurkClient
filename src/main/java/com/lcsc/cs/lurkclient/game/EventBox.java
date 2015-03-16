@@ -15,49 +15,53 @@ import java.awt.*;
  * Created by Jake on 3/11/2015.
  */
 public class EventBox {
-    private static final Logger logger      = LoggerFactory.getLogger(LoginForm.class);
-    private static final int    MAX_LINES   = 100;
+    private static final Logger     logger      = LoggerFactory.getLogger(LoginForm.class);
+    private static final int        MAX_LINES   = 100;
 
-    private JTextArea   eventText;
+    public  final        JTextArea  eventText;
 
 
-    public EventBox() {}
-
-    public void addEventBox(int x, int y, JPanel panel) {
-        this.eventText = new JTextArea(30, 1);
+    public EventBox(int x, int y, JPanel panel) {
+        eventText = new JTextArea(30, 1);
+        eventText.setMinimumSize(eventText.getPreferredSize());
 
         DefaultStyledDocument doc = new DefaultStyledDocument();
         doc.setDocumentFilter(new DocumentSizeFilter(1024*1024));
-        this.eventText.setDocument(doc);
-        this.eventText.setLineWrap(true);
-        this.eventText.setEditable(false);
+        eventText.setDocument(doc);
+        eventText.setLineWrap(true);
+        eventText.setEditable(false);
 
         //This should make it so that the event box automatically scrolls down when text is appended to the end.
-        DefaultCaret caret = (DefaultCaret)this.eventText.getCaret();
+        DefaultCaret caret = (DefaultCaret)eventText.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
-        Font oldFont    = this.eventText.getFont();
+        Font oldFont    = eventText.getFont();
         Font newFont    = new Font(oldFont.getFontName(), Font.PLAIN, 20);
-        this.eventText.setFont(newFont);
+        eventText.setFont(newFont);
 
         GridBagConstraints c = new GridBagConstraints();
         c.weightx = c.weighty = 1.0;
+        c.insets = new Insets(0, 0, 5, 0);
         c.fill          = GridBagConstraints.BOTH;
         c.gridx         = x;
         c.gridy         = y;
-        panel.add(new JScrollPane(this.eventText), c);
+        panel.add(new JScrollPane(eventText), c);
+
+        eventText.append("###################\n");
+        eventText.append("Welcome to the Game!\n");
+        eventText.append("###################");
     }
 
     public void appendText(String text) {
-        this.eventText.append(text);
+        eventText.append("\n"+text);
 
         //This will delete old event text when the line count is above some limit!
-        if (this.eventText.getLineCount() > MAX_LINES) {
-            int linesToDelete = this.eventText.getLineCount() - MAX_LINES;
+        if (eventText.getLineCount() > MAX_LINES) {
+            int linesToDelete = eventText.getLineCount() - MAX_LINES;
 
             try {
-                int end = this.eventText.getLineEndOffset(linesToDelete-1);
-                this.eventText.replaceRange("", 0, end);
+                int end = eventText.getLineEndOffset(linesToDelete-1);
+                eventText.replaceRange("", 0, end);
             } catch(BadLocationException e) {
                 logger.error("Line End Offset is Invalid!", e);
             }

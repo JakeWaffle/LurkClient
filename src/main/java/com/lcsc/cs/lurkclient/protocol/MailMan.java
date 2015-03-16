@@ -16,6 +16,7 @@ public class MailMan extends Thread {
     private static final Logger logger = LoggerFactory.getLogger(MailMan.class);
 
     private         boolean                 done;
+    private         boolean                 connected   = false;
     private         Socket                  sock        = null;
     private         OutputStream            out         = null;
     private         BufferedReader          in          = null;
@@ -51,6 +52,10 @@ public class MailMan extends Thread {
         }
     }
 
+    public synchronized boolean isConnected() {
+        return this.connected;
+    }
+
     //This will attempt to connect to the server
     //@param host The host we're connecting to.
     //@param port The port the server is listening on.
@@ -62,6 +67,7 @@ public class MailMan extends Thread {
             this.out        = new DataOutputStream(this.sock.getOutputStream());
             this.in         = new BufferedReader(new InputStreamReader(this.sock.getInputStream()));
             this.framer     = new MailBox(this.responseQueue, this.in);
+            this.connected  = true;
             this.framer.start();
         } catch (UnknownHostException e) {
             success = false;
@@ -86,6 +92,7 @@ public class MailMan extends Thread {
                 //The framer won't join until it's done with its read operation (which is why the socket and reader
                 // are closed!)
                 this.framer.join();
+                this.connected = false;
                 logger.debug("Joined MailBox thread!");
             } catch (IOException e) {
                 logger.error("Couldn't close socket to server!", e);

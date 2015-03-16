@@ -24,7 +24,7 @@ import java.util.Map;
 public class Main extends JFrame{
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    private static final State STARTING_STATE = State.GAME;
+    private static final State STARTING_STATE = State.SERVER_INFO_FORM;
 
     private Container                   contentPane;
     private State                       currentStateName = State.NULL_STATE;
@@ -67,7 +67,8 @@ public class Main extends JFrame{
     private void closeWindow() {
         logger.debug("Interrupting current state and closing application: "+this.currentStateName);
         this.currentState.cleanUp();
-        this.mailMan.sendMessage(new Command(CommandType.LEAVE));
+        if (this.mailMan.isConnected())
+            this.mailMan.sendMessage(new Command(CommandType.LEAVE));
         this.mailMan.disconnect();
         logger.debug("MailMan disconnected");
         try {

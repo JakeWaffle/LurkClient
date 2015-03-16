@@ -8,8 +8,13 @@ public enum ResponseType {
     REJECTED("REJEC"),
     RESULT("RESLT"),
     INFORM("INFOM"),
+    QUERY_INFORM("QINFO"),
+    ROOM_INFORM("RINFO"),
+    PLAYER_INFORM("PINFO"),
+    MONSTER_INFORM("MINFO"),
     MESSAGE("MSSG"),
-    NOTIFY("NOTIF");
+    NOTIFY("NOTIF"),
+    INVALID("INVLD");
 
     private final String type;
 
@@ -19,6 +24,14 @@ public enum ResponseType {
 
     public String getType() {
         return this.type;
+    }
+
+    /**
+     * This will return a regex pattern that will find the response headers that the server supports.
+     * @return A regex pattern to search for response headers with.
+     */
+    public static String getResponseTypePattern() {
+        return "ACEPT|REJEC|RESLT|INFOM|MSSG|NOTIF";
     }
 
     public static ResponseType fromString(String type) {

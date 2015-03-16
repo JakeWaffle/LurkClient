@@ -2,12 +2,10 @@ package com.lcsc.cs.lurkclient.states;
 
 import com.lcsc.cs.lurkclient.game.*;
 import com.lcsc.cs.lurkclient.protocol.*;
-import com.lcsc.cs.lurkclient.tools.DocumentSizeFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,30 +14,34 @@ import java.util.Map;
  * Created by Jake on 3/8/2015.
  */
 public class Game implements StateInterface{
-    private static final Logger logger = LoggerFactory.getLogger(LoginForm.class);
+    private static final Logger _logger = LoggerFactory.getLogger(LoginForm.class);
 
-    private boolean         endProgram;
-    private boolean         finished;
+    private boolean         _endProgram;
+    private boolean         _finished;
     private State           nextState;
 
-    private MailMan         mailMan;
+    private MailMan         _mailMan;
 
-    private EntityContainer entities;
-    private EventBox        eventBox;
-    private InputBox        inputBox;
-    private LogicLinker     linker;
+    private Room            _curRoom;
+    private EntityContainer _rooms;
+    private EntityContainer _monsters;
+    private EntityContainer _players;
+    private PlayerStats     _stats;
+
+    private EventBox        _eventBox;
+    private InputBox        _inputBox;
+    private ActionButtons   _actionBtns;
+
+    private LogicLinker     _linker;
 
     public Game() {
-        this.endProgram = false;
-        this.finished   = false;
+        this._endProgram = false;
+        this._finished = false;
     }
 
     //There shouldn't be any parameters for this state.
     public void init(Map<String,String> params, MailMan mailMan) {
-        this.mailMan    = mailMan;
-        this.entities   = new EntityContainer();
-        this.eventBox   = new EventBox();
-        this.inputBox   = new InputBox();
+        this._mailMan = mailMan;
     }
 
     public JPanel createState() {
@@ -53,97 +55,88 @@ public class Game implements StateInterface{
         title.setFont(newFont);
 
         c = new GridBagConstraints();
-        c.weightx = c.weighty = 0.05;
         c.anchor = GridBagConstraints.NORTH;
         c.gridwidth = 3;
-        c.gridx = 1;
+        c.gridx = 0;
         c.gridy = 0;
         panel.add(title, c);
 
+        JPanel leftPanel = new JPanel(new GridBagLayout());
+
+        _stats = new PlayerStats(leftPanel, 0, 0);
+
         JPanel listPanel = new JPanel(new GridBagLayout());
 
-        JLabel monsterLabel = new JLabel("Monsters");
+        _rooms      = new EntityContainer("Rooms", 0, 0, listPanel);
+        _monsters   = new EntityContainer("Monsters", 0, 2, listPanel);
+        _players    = new EntityContainer("Players", 0, 4, listPanel);
 
-        oldFont = monsterLabel.getFont();
-        newFont = new Font(oldFont.getFontName(), Font.PLAIN, 25);
-        monsterLabel.setFont(newFont);
-
-        c = new GridBagConstraints();
-        c.weightx = c.weighty = 1.0;
-        c.anchor = GridBagConstraints.WEST;
-        c.gridx = 0;
-        c.gridy = 0;
-        listPanel.add(monsterLabel, c);
-        this.entities.addMonsterList(0, 1, listPanel);
-
-        JLabel roomrLabel = new JLabel("Rooms");
-
-        oldFont = roomrLabel.getFont();
-        newFont = new Font(oldFont.getFontName(), Font.PLAIN, 25);
-        roomrLabel.setFont(newFont);
-
-        c = new GridBagConstraints();
-        c.weightx = c.weighty = 1.0;
-        c.anchor = GridBagConstraints.WEST;
-        c.gridx = 0;
-        c.gridy = 2;
-        listPanel.add(roomrLabel, c);
-        this.entities.addRoomList(0, 3, listPanel);
-
-        JLabel playersLabel = new JLabel("Players");
-
-        oldFont = playersLabel.getFont();
-        newFont = new Font(oldFont.getFontName(), Font.PLAIN, 25);
-        playersLabel.setFont(newFont);
-
-        c = new GridBagConstraints();
-        c.weightx = c.weighty = 1.0;
-        c.anchor = GridBagConstraints.WEST;
-        c.gridx = 0;
-        c.gridy = 4;
-        listPanel.add(playersLabel, c);
-        this.entities.addPlayerList(0, 5, listPanel);
+        _curRoom    = new Room(_monsters, _rooms);
 
         c               = new GridBagConstraints();
-        c.gridheight    = 3;
+        c.weightx = c.weighty = 1.0;
+        c.insets = new Insets(0, 0, 10, 0);
+        c.fill  = GridBagConstraints.BOTH;
         c.gridx = 0;
         c.gridy = 1;
-        panel.add(listPanel, c);
-
-        JPanel mainPanel = new JPanel(new GridBagLayout());
-        this.eventBox.addEventBox(0, 0, mainPanel);
-        this.inputBox.addInputBox(0, 1, 50, mainPanel);
+        leftPanel.add(listPanel, c);
 
         c               = new GridBagConstraints();
         c.weightx = c.weighty = 1.0;
-        c.gridheight    = 2;
+        c.gridheight    = 3;
+        c.insets = new Insets(0, 10, 10, 5);
+        c.fill  = GridBagConstraints.BOTH;
+        c.gridx = 0;
+        c.gridy = 1;
+        panel.add(leftPanel, c);
+
+
+        JPanel mainPanel    = new JPanel(new GridBagLayout());
+        _eventBox           = new EventBox(0, 0, mainPanel);
+        _inputBox           = new InputBox(0, 1, 50, mainPanel);
+
+        c               = new GridBagConstraints();
+        c.weightx = c.weighty = 1.0;
+        c.insets = new Insets(10, 5, 10, 5);
+        c.fill  = GridBagConstraints.BOTH;
+        c.gridheight    = 3;
         c.gridx         = 1;
         c.gridy         = 1;
 
         panel.add(mainPanel, c);
 
+        _actionBtns = new ActionButtons(panel, 2, 1, 3);
+
+        this._linker = new LogicLinker(_mailMan, _stats, _curRoom, _players, _eventBox, _inputBox, _actionBtns);
+        this._linker.setActionListeners();
+
         return panel;
     }
 
+    public void updateGame() {
+        _mailMan.sendMessage(new Command(CommandType.QUERY));
+    }
+
     public boolean run() {
-        logger.debug("Running the Game state!");
+        _logger.debug("Running the Game state!");
 
-        this.linker = new LogicLinker(this.entities, this.eventBox, this.inputBox);
+        _mailMan.sendMessage(new Command(CommandType.START));
 
-        while (!this.finished) {
+        while (!_finished) {
+            updateGame();
             try {
-                Thread.sleep(1000);
+                Thread.sleep(5000);
             } catch(InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
         }
-        mailMan.clearListeners();
+        _mailMan.clearListeners();
 
-        return this.endProgram;
+        return _endProgram;
     }
 
     public State getNextState() {
-        return this.nextState;
+        return nextState;
     }
 
     public Map<String,String> getNextStateParams() {
@@ -153,7 +146,7 @@ public class Game implements StateInterface{
     }
 
     public void cleanUp() {
-        this.endProgram = true;
-        this.finished = true;
+        _endProgram = true;
+        _finished = true;
     }
 }

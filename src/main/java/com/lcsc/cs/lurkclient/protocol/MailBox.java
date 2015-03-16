@@ -5,42 +5,73 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Jake on 3/7/2015.
  */
 public class MailBox extends Thread {
-    private static final Logger logger = LoggerFactory.getLogger(MailBox.class);
+    private static final Logger _logger = LoggerFactory.getLogger(MailBox.class);
 
-    private         boolean                 done;
-    private         BlockingQueue<Response> responseQueue;
-    private         BufferedReader          serverReader;
+    private         boolean                 _done;
+    private         BlockingQueue<Response> _responseQueue;
+    private         BufferedReader          _serverReader;
 
     public MailBox(BlockingQueue<Response> responseQueue, BufferedReader reader) {
-        this.done           = false;
-        this.responseQueue  = responseQueue;
-        this.serverReader   = reader;
+        _done = false;
+        _responseQueue = responseQueue;
+        _serverReader = reader;
     }
 
     public void run() {
-        while (!done) {
+        while (!_done) {
             char[] msg = new char[4096];
             try {
-               this.serverReader.read(msg);
+               _serverReader.read(msg);
             } catch (IOException e) {
-                logger.error("MailBox was interrupted probably so it could join its thread.");
+                _logger.error("MailBox was interrupted probably so it could join its thread.");
             }
 
-            List<Response> responses = Response.getResponses(new String(msg));
+            String message = new String(msg).replaceAll("\0", "");
+
+            if (message.startsWith("INFOM")) {
+                Pattern pattern = Pattern.compile("[0-9]+");
+                Matcher matcher = pattern.matcher(message);
+
+                int msgLength   = 0;
+                if (matcher.find())
+                    msgLength       = Integer.parseInt( matcher.group(0));
+
+                //After we've fetched the header we'll remove the unneeded msg length.
+                message         = message.replaceFirst("[0-9]+", "");
+
+                //This adds to the length of the message, since 'INFOM ' is technically apart of the message.
+                msgLength       += "INFOM ".length();
+
+                //If we don't already have the entire message.
+                while (message.length() < msgLength) {
+                    Arrays.fill(msg, 0, msg.length, '\0');
+                    try {
+                        _serverReader.read(msg);
+                    } catch (IOException e) {
+                        _logger.error("MailBox was interrupted probably so it could join its thread.");
+                    }
+                    message += new String(msg).replaceAll("\0", "");
+                }
+            }
+
+            List<Response> responses = Response.getResponses(message);
             for (Response response : responses) {
-                this.responseQueue.add(response);
+                _responseQueue.add(response);
             }
         }
     }
 
     public synchronized void stopFramer() {
-        this.done = true;
+        _done = true;
     }
 }
