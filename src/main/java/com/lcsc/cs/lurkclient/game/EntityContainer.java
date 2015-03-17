@@ -1,10 +1,13 @@
 package com.lcsc.cs.lurkclient.game;
 
+import java.util.List;
+
 import javax.swing.*;
 import java.awt.*;
 
 /**
  * Created by Jake on 3/11/2015.
+ * This just handles the elements within some JList.
  */
 public class EntityContainer {
     private final DefaultListModel  _entities;
@@ -45,6 +48,18 @@ public class EntityContainer {
     public void add(String element) {
         if (!_entities.contains(element))
             _entities.addElement(element);
+    }
+
+    /**
+     * This will add a list of the current elements in the EntityContainer.
+     * With this list we will remove/add elements as needed so that the elements
+     * list and the entity container have the same elements.
+     * @param elements The current list of elements.
+     */
+    public void add(List<String> elements) {
+        clear();
+        for (String element : elements)
+            add(element);
     }
 
     public void remove(String element) {

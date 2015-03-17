@@ -13,6 +13,9 @@ import java.awt.*;
 
 /**
  * Created by Jake on 3/11/2015.
+ * This handles the box that informs the user of all the things that are going on. For the most part
+ * this will just be displaying notifications from the server. But there will be messages for things within
+ * the client.
  */
 public class EventBox {
     private static final Logger     logger      = LoggerFactory.getLogger(LoginForm.class);

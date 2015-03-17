@@ -121,7 +121,7 @@ public class ServerInfoForm implements StateInterface  {
                 }
                 else {
                     //The host/port must have been invalid, so we'll let the user know.
-                    JOptionPane.showMessageDialog(null, "The entered host or port was invalid!", "Invalid Server Info", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "The entered host or port was invalid or the server is not responding!", "Invalid Server Info", JOptionPane.WARNING_MESSAGE);
                 }
             }
         });

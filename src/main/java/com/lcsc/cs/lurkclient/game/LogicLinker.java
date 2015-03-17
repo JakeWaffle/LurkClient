@@ -4,7 +4,13 @@ import com.lcsc.cs.lurkclient.protocol.MailMan;
 import com.lcsc.cs.lurkclient.protocol.Response;
 import com.lcsc.cs.lurkclient.protocol.ResponseListener;
 import com.lcsc.cs.lurkclient.protocol.ResponseType;
+import com.lcsc.cs.lurkclient.states.LoginForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sun.rmi.runtime.Log;
 
+import java.util.List;
+import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -15,8 +21,13 @@ import java.util.regex.Pattern;
 
 /**
  * Created by Student on 3/12/2015.
+ * This class has access to information about the various elements of the gui and the
+ * information about the game. Using this information this class links up data with the gui and
+ * also server responses to the data/gui.
  */
 public class LogicLinker {
+    private static final Logger   _logger      = LoggerFactory.getLogger(LogicLinker.class);
+
     private final MailMan         _mailMan;
     private final PlayerStats     _playerStats;
     private final Room            _curRoom;
@@ -98,16 +109,41 @@ public class LogicLinker {
 
                     //We need to match the first "Player: " to get an idea of where the player's name starts.
                     if (matcher.find()) {
+                        List<String> players = new ArrayList<String>();
                         //The message starts after this header and ends before the next header.
                         int start           = matcher.end();
                         int end             = -1;
                         while (matcher.find()) {
                             end             = matcher.start();
-                            _players.add(response.message.substring(start+1, end));
+                            players.add(response.message.substring(start+1, end));
                             start           = matcher.end();
                         }
-                        _players.add(response.message.substring(start+1));
+                        players.add(response.message.substring(start+1));
+
+                        _players.add(players);
                     }
+                }
+            }
+        });
+
+        //This will update the information about the room connections.
+        _mailMan.registerListener(new ResponseListener() {
+            @Override
+            public void notify(Response response) {
+                if (response.type == ResponseType.ROOM_INFORM) {
+                    LogicLinker._logger.info("Room Info: "+response.message);
+                    //LogicLinker.this._curRoom.asdfasdf
+                }
+            }
+        });
+
+        //This will update the information about the monsters in the room.
+        _mailMan.registerListener(new ResponseListener() {
+            @Override
+            public void notify(Response response) {
+                if (response.type == ResponseType.MONSTER_INFORM) {
+                    LogicLinker._logger.info("Room Info: "+response.message);
+                    //LogicLinker.this._curRoom.addMonster(asdfasdf);
                 }
             }
         });

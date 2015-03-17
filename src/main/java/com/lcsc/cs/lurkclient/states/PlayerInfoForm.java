@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by Jake on 3/7/2015.
+ * Here the player will be filling out information for his/her character.
  */
 public class PlayerInfoForm implements StateInterface {
     private static final Logger logger = LoggerFactory.getLogger(LoginForm.class);
@@ -51,13 +52,17 @@ public class PlayerInfoForm implements StateInterface {
         this.mailMan.registerListener(new ResponseListener() {
             @Override
             public void notify(Response response) {
-                if (response.type == ResponseType.INFORM) {
+                if (response.type == ResponseType.QUERY_INFORM) {
                     Pattern pattern = Pattern.compile("(GameDescription:)(.*)(Extension:|Name:)", Pattern.DOTALL);
                     Matcher matcher = pattern.matcher(response.message);
 
                     if (matcher.find())
                         if (PlayerInfoForm.this.gameDescrText != null)
                             PlayerInfoForm.this.gameDescrText.setText(matcher.group(2).trim());
+                        else
+                            logger.error("The game description text is null for some reason?");
+                    else
+                        logger.error("The game description was unable to be found!");
                 }
             }
         });
@@ -140,7 +145,7 @@ public class PlayerInfoForm implements StateInterface {
         c.gridy         = 0;
         descrPanel.add(description, c);
 
-        JTextArea descriptionText = new JTextArea(5, 70);
+        final JTextArea descriptionText = new JTextArea(5, 70);
         descriptionText.setMinimumSize(descriptionText.getPreferredSize());
 
         doc = new DefaultStyledDocument();
@@ -157,7 +162,6 @@ public class PlayerInfoForm implements StateInterface {
         c.weightx = c.weighty = 1.0;
         c.gridy         = 1;
         descrPanel.add(new JScrollPane(descriptionText), c);
-
 
         c               = new GridBagConstraints();
         c.gridy         = 2;

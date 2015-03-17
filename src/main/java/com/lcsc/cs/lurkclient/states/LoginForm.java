@@ -14,6 +14,7 @@ import java.util.HashMap;
 
 /**
  * Created by Student on 2/24/2015.
+ * Here you will enter information pertaining to a player's login.
  */
 public class LoginForm implements StateInterface {
     private static final Logger logger = LoggerFactory.getLogger(LoginForm.class);
@@ -101,25 +102,30 @@ public class LoginForm implements StateInterface {
     }
 
     private synchronized void handleLogin(Response response) {
-        switch (response.getResponse()) {
-            case "Name Already Taken":
-            case "Dead Without Health":
-                //I don't think anything should be done in this case?
-                JOptionPane.showMessageDialog(null, response.getResponse(), "Login Response", JOptionPane.INFORMATION_MESSAGE);
-                break;
-            case "New Player":
-                //Switch to the screen where the user enters in his player's data.
-                this.nextState  = State.PLAYER_INFO_FORM;
-                this.finished   = true;
-                break;
-            case "Reprising Player":
-                //Go directly to the game using your old character.
-                this.nextState  = State.GAME;
-                this.finished   = true;
-                break;
-            default:
-                logger.error("Invalid Response for LoginForm:\n"+response.toString());
-                break;
+        if (response.type == ResponseType.ACCEPTED) {
+            switch (response.message) {
+                case "Name Already Taken":
+                case "Dead Without Health":
+                    //I don't think anything should be done in this case?
+                    JOptionPane.showMessageDialog(null, response.getResponse(), "Login Response", JOptionPane.INFORMATION_MESSAGE);
+                    break;
+                case "New Player":
+                    //Switch to the screen where the user enters in his player's data.
+                    this.nextState = State.PLAYER_INFO_FORM;
+                    this.finished = true;
+                    break;
+                case "Reprising Player":
+                    //Go directly to the game using your old character.
+                    this.nextState = State.GAME;
+                    this.finished = true;
+                    break;
+                default:
+                    logger.error("Invalid Response for LoginForm:\n" + response.toString());
+                    break;
+            }
+        }
+        else {
+            logger.debug("Unneeded Response:\n"+response.toString());
         }
     }
 

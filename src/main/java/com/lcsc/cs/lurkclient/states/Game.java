@@ -12,6 +12,7 @@ import java.util.Map;
 
 /**
  * Created by Jake on 3/8/2015.
+ * This is the main part of the client. This is where the player will be actually playing the game.
  */
 public class Game implements StateInterface{
     private static final Logger _logger = LoggerFactory.getLogger(LoginForm.class);
