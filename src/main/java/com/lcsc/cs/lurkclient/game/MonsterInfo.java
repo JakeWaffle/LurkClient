@@ -3,16 +3,14 @@ package com.lcsc.cs.lurkclient.game;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by Jake on 3/17/2015.
+ * Created by Jake on 3/18/2015.
  */
-public class PlayerInfo {
-    private static final Logger _logger = LoggerFactory.getLogger(PlayerInfo.class);
+public class MonsterInfo {
+    private static final Logger _logger = LoggerFactory.getLogger(MonsterInfo.class);
 
     public final String     info;
     public final String     name;
@@ -24,8 +22,8 @@ public class PlayerInfo {
     public final String     regen;
     public final String     status;
 
-    public PlayerInfo(String info) {
-        this.info       = info;
+    public MonsterInfo(String info) {
+        this.info      = info;
 
         Pattern pattern = Pattern.compile("Name: |Description: |Health: |Gold: |Attack: |Defense: |Regen: |Status: ");
         Matcher matcher = pattern.matcher(info);

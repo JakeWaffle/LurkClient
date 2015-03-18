@@ -1,21 +1,16 @@
 package com.lcsc.cs.lurkclient.game;
 
-import com.lcsc.cs.lurkclient.protocol.MailMan;
-import com.lcsc.cs.lurkclient.protocol.Response;
-import com.lcsc.cs.lurkclient.protocol.ResponseListener;
-import com.lcsc.cs.lurkclient.protocol.ResponseType;
+import com.lcsc.cs.lurkclient.protocol.*;
 import com.lcsc.cs.lurkclient.states.LoginForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.rmi.runtime.Log;
 
+import java.awt.event.*;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,6 +47,7 @@ public class LogicLinker {
     public void setActionListeners() {
         setServerResponseListener();
         setEnterKeyListener();
+        setButtonListeners();
     }
 
     private void setServerResponseListener() {
@@ -125,7 +121,7 @@ public class LogicLinker {
                 for (Response response : responses) {
                     if (response.type == ResponseType.MONSTER_INFORM) {
                         LogicLinker._logger.debug("Monster Info: " + response.message);
-                        //LogicLinker.this._curRoom.addMonster(asdfasdf);
+                        LogicLinker.this._curRoom.addMonster(new MonsterInfo(response.message));
                     }
                 }
             }
@@ -157,7 +153,19 @@ public class LogicLinker {
     }
 
     private void setButtonListeners() {
-
+        _actionBtns.changeRoomBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedRoom = _curRoom.getSelectedRoom();
+                if (selectedRoom != null) {
+                    Command cmd = new Command(CommandType.ACTION, ActionType.CHANGE_ROOM, selectedRoom);
+                    _curRoom.clear();
+                    LogicLinker.this._mailMan.sendMessage(cmd);
+                }
+                else
+                    JOptionPane.showMessageDialog(null, "Select a room before clicking the 'Change Room' button!", "Invalid Button Press", JOptionPane.WARNING_MESSAGE);
+            }
+        });
     }
 
     private void setEnterKeyListener() {

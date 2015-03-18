@@ -9,27 +9,38 @@ import org.slf4j.LoggerFactory;
 public class Command {
     private static final Logger logger = LoggerFactory.getLogger(Command.class);
 
-    private final   CommandType type;
-    private         String      body = null;
+    private final   CommandType _type;
+    private         ActionType  _actionType = null;
+    private         String      _body = null;
+
+    public Command(CommandType ctype, ActionType atype, String body) {
+        _type       = ctype;
+        _actionType = atype;
+        _body       = body;
+    }
 
     public Command(CommandType type, String body) {
-        this.type       = type;
-        this.body       = body;
+        _type       = type;
+        _body       = body;
     }
 
     public Command(CommandType type) {
-        this.type = type;
+        _type = type;
     }
 
     public CommandType getCommandType() {
-        return this.type;
+        return _type;
     }
 
     private String buildMessage() {
-        String message = this.type.getCommandHeader();
+        String message = _type.getCommandHeader();
 
-        if (body != null) {
-            message += " "+this.body;
+        if (_actionType != null) {
+            message += " "+_actionType.getActionName();
+        }
+
+        if (_body != null) {
+            message += " "+_body;
         }
 
         return message;

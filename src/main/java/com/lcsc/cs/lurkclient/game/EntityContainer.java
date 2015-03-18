@@ -66,6 +66,10 @@ public class EntityContainer {
         _entities.removeElement(element);
     }
 
+    public String getSelectedElement() {
+        return (String)_entityList.getSelectedValue();
+    }
+
     public void clear() {
         _entities.clear();
     }

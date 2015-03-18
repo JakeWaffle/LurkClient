@@ -7,24 +7,19 @@ import java.util.List;
  * Created by Jake on 3/15/2015.
  */
 public class Room {
-    private       String            _name;
+    private       RoomInfo          _roomInfo = null;
     private final EntityContainer   _monsters;
     private final EntityContainer   _connections;
     private final EntityContainer   _players;
 
     public Room(EntityContainer monsters, EntityContainer rooms, EntityContainer players) {
-        _name           = "<name>";
         _monsters       = monsters;
         _connections    = rooms;
         _players        = players;
     }
 
-    public void addConnection(String connection) {
-        _connections.add(connection);
-    }
-
-    public void addMonster(String monster) {
-        _monsters.add(monster);
+    public String getSelectedRoom() {
+        return _connections.getSelectedElement();
     }
 
     /**
@@ -39,12 +34,16 @@ public class Room {
         _players.clear();
     }
 
+    public void addMonster(MonsterInfo monster) {
+        _monsters.add(monster.name);
+    }
+
     public void addPlayer(PlayerInfo player) {
         _players.add(player.name);
     }
 
     public void newRoom(RoomInfo newRoom) {
-        _name = newRoom.name;
+        _roomInfo = newRoom;
         _monsters.update(newRoom.monsters);
         _connections.update(newRoom.connections);
     }
