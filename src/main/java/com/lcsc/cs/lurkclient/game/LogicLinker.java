@@ -31,7 +31,6 @@ public class LogicLinker {
     private final MailMan         _mailMan;
     private final PlayerStats     _playerStats;
     private final Room            _curRoom;
-    private final EntityContainer _players;
     private final EventBox        _eventBox;
     private final InputBox        _inputBox;
     private final ActionButtons   _actionBtns;
@@ -39,14 +38,12 @@ public class LogicLinker {
     public LogicLinker(MailMan mailMan,
                        PlayerStats playerStats,
                        Room curRoom,
-                       EntityContainer players,
                        EventBox eventBox,
                        InputBox inputBox,
                        ActionButtons actionBtns) {
         _mailMan        = mailMan;
         _playerStats    = playerStats;
         _curRoom        = curRoom;
-        _players        = players;
         _eventBox       = eventBox;
         _inputBox       = inputBox;
         _actionBtns     = actionBtns;
@@ -61,69 +58,48 @@ public class LogicLinker {
         //Handles Query commands.
         _mailMan.registerListener(new ResponseListener() {
             @Override
-            public void notify(Response response) {
-                if (response.type == ResponseType.QUERY_INFORM) {
-                    Pattern pattern = Pattern.compile(".*(?<!NiceName:).*(Name:)(.*)(Description:)", Pattern.DOTALL);
-                    Matcher matcher = pattern.matcher(response.message);
-                    if (matcher.find())
-                        LogicLinker.this._playerStats.name.setText(matcher.group(2).trim());
+            public void notify(List<Response> responses) {
+                for (Response response : responses) {
+                    if (response.type == ResponseType.QUERY_INFORM) {
+                        Pattern pattern = Pattern.compile(".*(?<!NiceName:).*(Name:)(.*)(Description:)", Pattern.DOTALL);
+                        Matcher matcher = pattern.matcher(response.message);
+                        if (matcher.find())
+                            LogicLinker.this._playerStats.name.setText(matcher.group(2).trim());
 
-                    pattern = Pattern.compile("(Gold:)(.*)(Attack:)", Pattern.DOTALL);
-                    matcher = pattern.matcher(response.message);
-                    if (matcher.find())
-                        LogicLinker.this._playerStats.gold.setText(matcher.group(2).trim());
+                        pattern = Pattern.compile("(Gold:)(.*)(Attack:)", Pattern.DOTALL);
+                        matcher = pattern.matcher(response.message);
+                        if (matcher.find())
+                            LogicLinker.this._playerStats.gold.setText(matcher.group(2).trim());
 
-                    pattern = Pattern.compile("(Attack:)(.*)(Defense:)", Pattern.DOTALL);
-                    matcher = pattern.matcher(response.message);
-                    if (matcher.find())
-                        LogicLinker.this._playerStats.atk.setText(matcher.group(2).trim());
+                        pattern = Pattern.compile("(Attack:)(.*)(Defense:)", Pattern.DOTALL);
+                        matcher = pattern.matcher(response.message);
+                        if (matcher.find())
+                            LogicLinker.this._playerStats.atk.setText(matcher.group(2).trim());
 
-                    pattern = Pattern.compile("(Defense:)(.*)(Regen:)", Pattern.DOTALL);
-                    matcher = pattern.matcher(response.message);
-                    if (matcher.find())
-                        LogicLinker.this._playerStats.def.setText(matcher.group(2).trim());
+                        pattern = Pattern.compile("(Defense:)(.*)(Regen:)", Pattern.DOTALL);
+                        matcher = pattern.matcher(response.message);
+                        if (matcher.find())
+                            LogicLinker.this._playerStats.def.setText(matcher.group(2).trim());
 
-                    pattern = Pattern.compile("(Regen:)(.*)(Status)", Pattern.DOTALL);
-                    matcher = pattern.matcher(response.message);
-                    if (matcher.find())
-                        LogicLinker.this._playerStats.reg.setText(matcher.group(2).trim());
+                        pattern = Pattern.compile("(Regen:)(.*)(Status)", Pattern.DOTALL);
+                        matcher = pattern.matcher(response.message);
+                        if (matcher.find())
+                            LogicLinker.this._playerStats.reg.setText(matcher.group(2).trim());
 
-                    pattern = Pattern.compile("(Status:)(.*)(Location:)", Pattern.DOTALL);
-                    matcher = pattern.matcher(response.message);
-                    if (matcher.find())
-                        LogicLinker.this._playerStats.status.setText(matcher.group(2).trim());
+                        pattern = Pattern.compile("(Status:)(.*)(Location:)", Pattern.DOTALL);
+                        matcher = pattern.matcher(response.message);
+                        if (matcher.find())
+                            LogicLinker.this._playerStats.status.setText(matcher.group(2).trim());
 
-                    pattern = Pattern.compile("(Location:)(.*)(Health:)", Pattern.DOTALL);
-                    matcher = pattern.matcher(response.message);
-                    if (matcher.find())
-                        LogicLinker.this._playerStats.location.setText(matcher.group(2).trim());
+                        pattern = Pattern.compile("(Location:)(.*)(Health:)", Pattern.DOTALL);
+                        matcher = pattern.matcher(response.message);
+                        if (matcher.find())
+                            LogicLinker.this._playerStats.location.setText(matcher.group(2).trim());
 
-                    pattern = Pattern.compile("(Health:)(.*)(Started:)", Pattern.DOTALL);
-                    matcher = pattern.matcher(response.message);
-                    if (matcher.find())
-                        LogicLinker.this._playerStats.health.setText(matcher.group(2).trim());
-
-                    //This will search for players in the query and add them to the list of players.
-                    pattern = Pattern.compile("Player:");
-                    matcher = pattern.matcher(response.message);
-
-                    //We need to match the first "Player: " to get an idea of where the player's name starts.
-                    if (matcher.find()) {
-                        List<String> players = new ArrayList<String>();
-                        //The message starts after this header and ends before the next header.
-                        int start           = matcher.end();
-                        int end             = -1;
-                        while (matcher.find()) {
-                            end             = matcher.start();
-                            players.add(response.message.substring(start+1, end));
-                            start           = matcher.end();
-                        }
-                        players.add(response.message.substring(start+1));
-
-                        _players.update(players);
-                    }
-                    else {
-                        _players.clear();
+                        pattern = Pattern.compile("(Health:)(.*)(Started:)", Pattern.DOTALL);
+                        matcher = pattern.matcher(response.message);
+                        if (matcher.find())
+                            LogicLinker.this._playerStats.health.setText(matcher.group(2).trim());
                     }
                 }
             }
@@ -132,10 +108,12 @@ public class LogicLinker {
         //This will update the information about the room connections.
         _mailMan.registerListener(new ResponseListener() {
             @Override
-            public void notify(Response response) {
-                if (response.type == ResponseType.ROOM_INFORM) {
-                    LogicLinker._logger.debug("Room Info: " + response.message);
-                    LogicLinker.this._curRoom.newRoom(new RoomInfo(response.message));
+            public void notify(List<Response> responses) {
+                for (Response response : responses) {
+                    if (response.type == ResponseType.ROOM_INFORM) {
+                        LogicLinker._logger.debug("Room Info: " + response.message);
+                        LogicLinker.this._curRoom.newRoom(new RoomInfo(response.message));
+                    }
                 }
             }
         });
@@ -143,10 +121,25 @@ public class LogicLinker {
         //This will update the information about the monsters in the room.
         _mailMan.registerListener(new ResponseListener() {
             @Override
-            public void notify(Response response) {
-                if (response.type == ResponseType.MONSTER_INFORM) {
-                    LogicLinker._logger.debug("Monster Info: "+response.message);
-                    //LogicLinker.this._curRoom.addMonster(asdfasdf);
+            public void notify(List<Response> responses) {
+                for (Response response : responses) {
+                    if (response.type == ResponseType.MONSTER_INFORM) {
+                        LogicLinker._logger.debug("Monster Info: " + response.message);
+                        //LogicLinker.this._curRoom.addMonster(asdfasdf);
+                    }
+                }
+            }
+        });
+
+        //This will update the information about the players in the room.
+        _mailMan.registerListener(new ResponseListener() {
+            @Override
+            public void notify(List<Response> responses) {
+                for (Response response : responses) {
+                    if (response.type == ResponseType.PLAYER_INFORM) {
+                        LogicLinker._logger.debug("Player Info: " + response.message);
+                        LogicLinker.this._curRoom.addPlayer(new PlayerInfo(response.message));
+                    }
                 }
             }
         });
@@ -154,9 +147,11 @@ public class LogicLinker {
         //This will just update the EventBox with notify messages from the server.
         _mailMan.registerListener(new ResponseListener() {
             @Override
-            public void notify(Response response) {
-                if (response.type == ResponseType.NOTIFY)
-                    LogicLinker.this._eventBox.appendText(response.message);
+            public void notify(List<Response> responses) {
+                for (Response response : responses) {
+                    if (response.type == ResponseType.NOTIFY)
+                        LogicLinker.this._eventBox.appendText(response.message);
+                }
             }
         });
     }

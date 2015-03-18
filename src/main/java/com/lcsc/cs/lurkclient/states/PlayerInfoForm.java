@@ -12,6 +12,8 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -51,27 +53,31 @@ public class PlayerInfoForm implements StateInterface {
 
         this.mailMan.registerListener(new ResponseListener() {
             @Override
-            public void notify(Response response) {
-                if (response.type == ResponseType.QUERY_INFORM) {
-                    Pattern pattern = Pattern.compile("(GameDescription:)(.*?)((?<!NiceName:)Name:|Extension:)", Pattern.DOTALL);
-                    Matcher matcher = pattern.matcher(response.message);
+            public void notify(List<Response> responses) {
+                for (Response response : responses) {
+                    if (response.type == ResponseType.QUERY_INFORM) {
+                        Pattern pattern = Pattern.compile("(GameDescription:)(.*?)((?<!NiceName:)Name:|Extension:)", Pattern.DOTALL);
+                        Matcher matcher = pattern.matcher(response.message);
 
-                    if (matcher.find())
-                        if (PlayerInfoForm.this.gameDescrText != null)
-                            PlayerInfoForm.this.gameDescrText.setText(matcher.group(2).trim());
+                        if (matcher.find())
+                            if (PlayerInfoForm.this.gameDescrText != null)
+                                PlayerInfoForm.this.gameDescrText.setText(matcher.group(2).trim());
+                            else
+                                logger.error("The game description text is null for some reason?");
                         else
-                            logger.error("The game description text is null for some reason?");
-                    else
-                        logger.error("The game description was unable to be found!");
+                            logger.error("The game description was unable to be found!");
+                    }
                 }
             }
         });
 
         this.mailMan.registerListener(new ResponseListener() {
             @Override
-            public void notify(Response response) {
-                if (response.type == ResponseType.ACCEPTED || response.type == ResponseType.REJECTED) {
-                    PlayerInfoForm.this.handleStats(response);
+            public void notify(List<Response> responses) {
+                for (Response response: responses) {
+                    if (response.type == ResponseType.ACCEPTED || response.type == ResponseType.REJECTED) {
+                        PlayerInfoForm.this.handleStats(response);
+                    }
                 }
             }
         });

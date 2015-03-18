@@ -72,7 +72,7 @@ public class Game implements StateInterface{
         _monsters   = new EntityContainer("Monsters", 0, 2, listPanel);
         _players    = new EntityContainer("Players", 0, 4, listPanel);
 
-        _curRoom    = new Room(_monsters, _rooms);
+        _curRoom    = new Room(_monsters, _rooms, _players);
 
         c               = new GridBagConstraints();
         c.weightx = c.weighty = 1.0;
@@ -108,8 +108,8 @@ public class Game implements StateInterface{
 
         _actionBtns = new ActionButtons(panel, 2, 1, 3);
 
-        this._linker = new LogicLinker(_mailMan, _stats, _curRoom, _players, _eventBox, _inputBox, _actionBtns);
-        this._linker.setActionListeners();
+        _linker = new LogicLinker(_mailMan, _stats, _curRoom, _eventBox, _inputBox, _actionBtns);
+        _linker.setActionListeners();
 
         return panel;
     }

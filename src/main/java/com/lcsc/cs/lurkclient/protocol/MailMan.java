@@ -21,12 +21,12 @@ public class MailMan extends Thread {
     private         OutputStream            out         = null;
     private         BufferedReader          in          = null;
     private         List<ResponseListener>  listeners   = new ArrayList<ResponseListener>();
-    private         BlockingQueue<Response> responseQueue;
+    private         BlockingQueue<List<Response>> responseQueue;
     private MailBox framer;
 
     public MailMan() {
         this.done = false;
-        this.responseQueue = new ArrayBlockingQueue<Response>(20);
+        this.responseQueue = new ArrayBlockingQueue<List<Response>>(20);
     }
 
     //This method will be waiting for input from the server essentially.
@@ -35,9 +35,9 @@ public class MailMan extends Thread {
         while (!done) {
             while (this.responseQueue.size() > 0) {
                 try {
-                    Response response = this.responseQueue.take();
+                    List<Response> responses = this.responseQueue.take();
                     for (ResponseListener listener : this.listeners) {
-                        listener.notify(response);
+                        listener.notify(responses);
                     }
                 } catch(InterruptedException e) {
                     logger.error("Interrupted while removing from the response queue.", e);

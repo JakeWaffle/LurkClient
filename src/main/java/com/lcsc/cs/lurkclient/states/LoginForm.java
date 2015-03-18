@@ -9,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -36,8 +38,9 @@ public class LoginForm implements StateInterface {
 
         this.mailMan.registerListener(new ResponseListener() {
             @Override
-            public void notify(Response response) {
-                LoginForm.this.handleLogin(response);
+            public void notify(List<Response> responses) {
+                for (Response response : responses)
+                    LoginForm.this.handleLogin(response);
             }
         });
     }
@@ -102,7 +105,7 @@ public class LoginForm implements StateInterface {
     }
 
     private synchronized void handleLogin(Response response) {
-        if (response.type == ResponseType.ACCEPTED) {
+        if (response.type == ResponseType.ACCEPTED || response.type == ResponseType.REJECTED) {
             switch (response.message) {
                 case "Name Already Taken":
                 case "Dead Without Health":

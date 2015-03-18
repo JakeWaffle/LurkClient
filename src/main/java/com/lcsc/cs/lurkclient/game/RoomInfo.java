@@ -43,7 +43,7 @@ public class RoomInfo {
                 else if (type.equals("Monster: "))
                     monsters.add(info.substring(start + 1, end));
                 else
-                    _logger.warn("Invalid Regex group: " + type);
+                    _logger.warn("Invalid Regex group for RoomInfo: " + type);
 
                 type            = matcher.group();
                 start           = matcher.end();
@@ -58,7 +58,7 @@ public class RoomInfo {
             else if (type.equals("Monster: "))
                 monsters.add(info.substring(start + 1));
             else
-                _logger.warn("Invalid Regex group: "+type);
+                _logger.warn("Invalid Regex group for RoomInfo: "+type);
         }
         else
             _logger.warn("The given RoomInfo string is invalid: "+info);

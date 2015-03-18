@@ -18,10 +18,10 @@ public class MailBox extends Thread {
     private static final Logger _logger = LoggerFactory.getLogger(MailBox.class);
 
     private         boolean                 _done;
-    private         BlockingQueue<Response> _responseQueue;
+    private         BlockingQueue<List<Response>> _responseQueue;
     private         BufferedReader          _serverReader;
 
-    public MailBox(BlockingQueue<Response> responseQueue, BufferedReader reader) {
+    public MailBox(BlockingQueue<List<Response>> responseQueue, BufferedReader reader) {
         _done = false;
         _responseQueue = responseQueue;
         _serverReader = reader;
@@ -61,10 +61,9 @@ public class MailBox extends Thread {
                 }
             }
 
+            //TODO Bundle responses with the same ResponseType into a list and then send them to each response listener!
             List<Response> responses = Response.getResponses(message);
-            for (Response response : responses) {
-                _responseQueue.add(response);
-            }
+            _responseQueue.add(responses);
         }
     }
 
