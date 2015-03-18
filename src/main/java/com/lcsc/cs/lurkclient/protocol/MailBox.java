@@ -46,9 +46,6 @@ public class MailBox extends Thread {
                 if (matcher.find())
                     msgLength       = Integer.parseInt( matcher.group(0));
 
-                //After we've fetched the header we'll remove the unneeded msg length.
-                message         = message.replaceFirst("[0-9]+", "");
-
                 //This adds to the length of the message, since 'INFOM ' is technically apart of the message.
                 msgLength       += "INFOM ".length();
 

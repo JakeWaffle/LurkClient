@@ -53,7 +53,7 @@ public class PlayerInfoForm implements StateInterface {
             @Override
             public void notify(Response response) {
                 if (response.type == ResponseType.QUERY_INFORM) {
-                    Pattern pattern = Pattern.compile("(GameDescription:)(.*)(Extension:|Name:)", Pattern.DOTALL);
+                    Pattern pattern = Pattern.compile("(GameDescription:)(.*?)((?<!NiceName:)Name:|Extension:)", Pattern.DOTALL);
                     Matcher matcher = pattern.matcher(response.message);
 
                     if (matcher.find())
@@ -197,6 +197,7 @@ public class PlayerInfoForm implements StateInterface {
         statPanel.add(atk, c);
 
         final JTextField attackStat    = new JTextField(5);
+        attackStat.setMinimumSize(attackStat.getPreferredSize());
 
         oldFont         = attackStat.getFont();
         newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 20);
@@ -221,6 +222,7 @@ public class PlayerInfoForm implements StateInterface {
         statPanel.add(defense, c);
 
         final JTextField defenseStat    = new JTextField(5);
+        defenseStat.setMinimumSize(defenseStat.getPreferredSize());
 
         oldFont         = defenseStat.getFont();
         newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 20);
@@ -246,6 +248,7 @@ public class PlayerInfoForm implements StateInterface {
         statPanel.add(regen, c);
 
         final JTextField regenStat    = new JTextField(5);
+        regenStat.setMinimumSize(regenStat.getPreferredSize());
 
         oldFont         = regenStat.getFont();
         newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 20);

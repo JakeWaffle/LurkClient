@@ -25,9 +25,9 @@ public class Room {
         _monsters.add(monster);
     }
 
-    public void newRoom(String name) {
-        _name = name;
-        _monsters.clear();
-        _connections.clear();
+    public void newRoom(RoomInfo newRoom) {
+        _name = newRoom.name;
+        _monsters.update(newRoom.monsters);
+        _connections.update(newRoom.connections);
     }
 }

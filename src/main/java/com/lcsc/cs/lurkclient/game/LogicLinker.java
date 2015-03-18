@@ -63,7 +63,7 @@ public class LogicLinker {
             @Override
             public void notify(Response response) {
                 if (response.type == ResponseType.QUERY_INFORM) {
-                    Pattern pattern = Pattern.compile("(Name:)(.*)(Description:)", Pattern.DOTALL);
+                    Pattern pattern = Pattern.compile(".*(?<!NiceName:).*(Name:)(.*)(Description:)", Pattern.DOTALL);
                     Matcher matcher = pattern.matcher(response.message);
                     if (matcher.find())
                         LogicLinker.this._playerStats.name.setText(matcher.group(2).trim());
@@ -120,7 +120,10 @@ public class LogicLinker {
                         }
                         players.add(response.message.substring(start+1));
 
-                        _players.add(players);
+                        _players.update(players);
+                    }
+                    else {
+                        _players.clear();
                     }
                 }
             }
@@ -131,8 +134,8 @@ public class LogicLinker {
             @Override
             public void notify(Response response) {
                 if (response.type == ResponseType.ROOM_INFORM) {
-                    LogicLinker._logger.info("Room Info: "+response.message);
-                    //LogicLinker.this._curRoom.asdfasdf
+                    LogicLinker._logger.debug("Room Info: " + response.message);
+                    LogicLinker.this._curRoom.newRoom(new RoomInfo(response.message));
                 }
             }
         });
@@ -142,7 +145,7 @@ public class LogicLinker {
             @Override
             public void notify(Response response) {
                 if (response.type == ResponseType.MONSTER_INFORM) {
-                    LogicLinker._logger.info("Room Info: "+response.message);
+                    LogicLinker._logger.debug("Monster Info: "+response.message);
                     //LogicLinker.this._curRoom.addMonster(asdfasdf);
                 }
             }

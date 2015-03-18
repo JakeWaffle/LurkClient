@@ -19,8 +19,6 @@ public class Response {
     public static List<Response> getResponses(String message) {
         List<Response> responses = new ArrayList<Response>();
 
-        _logger.info("Received Message:\n"+message);
-
         Pattern pattern = Pattern.compile(ResponseType.getResponseTypePattern());
         Matcher matcher = pattern.matcher(message);
 
@@ -50,11 +48,15 @@ public class Response {
 
     public Response(ResponseType type, String message) {
         if (type == ResponseType.INFORM){
+            //The unneeded message length after the header needs to be replaced since this is
+            //an INFOM message.
+            message = message.replaceFirst("[0-9]+", "");
+
             if (message.contains("GameDescription:"))
                 this.type = ResponseType.QUERY_INFORM;
             else if (message.contains("Location:"))
                 this.type = ResponseType.PLAYER_INFORM;
-            else if (message.contains("Connection:") && message.contains("Monster:"))
+            else if (message.contains("Connection:") || message.contains("Monster:"))
                 this.type = ResponseType.ROOM_INFORM;
             else if (message.contains("Name:"))
                 this.type = ResponseType.MONSTER_INFORM;
@@ -62,9 +64,11 @@ public class Response {
                 this.type = ResponseType.INVALID;
         }
         else
-            this.type   = type;
+            this.type       = type;
 
-        this.message    = message.trim();
+        this.message = message.trim();
+
+        _logger.info("Received Message:\n"+toString());
     }
 
     public String getType() {

@@ -56,7 +56,7 @@ public class EntityContainer {
      * list and the entity container have the same elements.
      * @param elements The current list of elements.
      */
-    public void add(List<String> elements) {
+    public void update(List<String> elements) {
         clear();
         for (String element : elements)
             add(element);
