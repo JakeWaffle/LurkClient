@@ -19,6 +19,11 @@ public class Command {
         _body       = body;
     }
 
+    public Command(CommandType ctype, ActionType atype) {
+        _type       = ctype;
+        _actionType = atype;
+    }
+
     public Command(CommandType type, String body) {
         _type       = type;
         _body       = body;

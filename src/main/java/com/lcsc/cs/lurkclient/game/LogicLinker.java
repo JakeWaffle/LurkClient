@@ -108,7 +108,7 @@ public class LogicLinker {
                 for (Response response : responses) {
                     if (response.type == ResponseType.ROOM_INFORM) {
                         LogicLinker._logger.debug("Room Info: " + response.message);
-                        LogicLinker.this._curRoom.newRoom(new RoomInfo(response.message));
+                        LogicLinker.this._curRoom.updateRoom(new RoomInfo(response.message));
                     }
                 }
             }
@@ -164,6 +164,13 @@ public class LogicLinker {
                 }
                 else
                     JOptionPane.showMessageDialog(null, "Select a room before clicking the 'Change Room' button!", "Invalid Button Press", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        _actionBtns.fightBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                LogicLinker.this._mailMan.sendMessage(new Command(CommandType.ACTION, ActionType.FIGHT));
             }
         });
     }

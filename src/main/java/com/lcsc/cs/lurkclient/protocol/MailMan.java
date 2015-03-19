@@ -26,7 +26,7 @@ public class MailMan extends Thread {
 
     public MailMan() {
         this.done = false;
-        this.responseQueue = new ArrayBlockingQueue<List<Response>>(20);
+        this.responseQueue = new ArrayBlockingQueue<List<Response>>(50);
     }
 
     //This method will be waiting for input from the server essentially.

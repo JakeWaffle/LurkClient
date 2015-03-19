@@ -42,9 +42,14 @@ public class Room {
         _players.add(player.name);
     }
 
-    public void newRoom(RoomInfo newRoom) {
-        _roomInfo = newRoom;
-        _monsters.update(newRoom.monsters);
-        _connections.update(newRoom.connections);
+    /**
+     * Note that this method is called whenever a room info message is sent from the server. It might mean
+     * that we have gone to another room or it could mean that a fight just occurred and stuff is being updated.
+     * @param room
+     */
+    public void updateRoom(RoomInfo room) {
+        _roomInfo = room;
+        //_monsters.update(newRoom.monsters);
+        _connections.update(room.connections);
     }
 }
