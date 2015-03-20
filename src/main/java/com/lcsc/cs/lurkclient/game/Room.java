@@ -18,8 +18,20 @@ public class Room {
         _players        = players;
     }
 
+    /**
+     * This will get the room connection that is selected currently.
+     * @return A string representing a room connection's name. If no room is selected this will be null.
+     */
     public String getSelectedRoom() {
         return _connections.getSelectedElement();
+    }
+
+    /**
+     * This will get the player in the current room that is selected currently.
+     * @return A string representing a player's name. If no player is selected this will be null.
+     */
+    public String getSelectedPlayer() {
+        return _players.getSelectedElement();
     }
 
     /**

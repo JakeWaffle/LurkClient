@@ -145,7 +145,7 @@ public class LogicLinker {
             @Override
             public void notify(List<Response> responses) {
                 for (Response response : responses) {
-                    if (response.type == ResponseType.NOTIFY)
+                    if (response.type == ResponseType.NOTIFY || response.type == ResponseType.MESSAGE)
                         LogicLinker.this._eventBox.appendText(response.message);
                 }
             }
@@ -163,7 +163,7 @@ public class LogicLinker {
                     LogicLinker.this._mailMan.sendMessage(cmd);
                 }
                 else
-                    JOptionPane.showMessageDialog(null, "Select a room before clicking the 'Change Room' button!", "Invalid Button Press", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Select a room before clicking the 'Change Room' button!", "Invalid State", JOptionPane.WARNING_MESSAGE);
             }
         });
 
@@ -173,23 +173,40 @@ public class LogicLinker {
                 LogicLinker.this._mailMan.sendMessage(new Command(CommandType.ACTION, ActionType.FIGHT));
             }
         });
+
+        _actionBtns.messageBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedPlayer = _curRoom.getSelectedPlayer();
+                if (selectedPlayer != null) {
+                    String message = selectedPlayer + " " + LogicLinker.this._inputBox.getInput();
+                    LogicLinker.this._mailMan.sendMessage(new Command(CommandType.ACTION, ActionType.MESSAGE, message));
+                }
+                else
+                    JOptionPane.showMessageDialog(null, "Select a player before clicking the 'Message' button!", "Invalid State", JOptionPane.WARNING_MESSAGE);
+            }
+        });
     }
 
     private void setEnterKeyListener() {
-        _inputBox.inputBox.addKeyListener(new KeyListener() {
+        _inputBox.addKeyListener(new KeyListener() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode()==KeyEvent.VK_ENTER) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     JTextField textField = (JTextField) e.getSource();
                     String text = textField.getText();
                     _eventBox.appendText(text);
                     textField.setText("");
                 }
             }
+
             @Override
-            public void keyTyped(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) {
+            }
+
             @Override
-            public void keyPressed(KeyEvent e) {}
+            public void keyPressed(KeyEvent e) {
+            }
         });
     }
 }

@@ -12,7 +12,7 @@ public enum ResponseType {
     ROOM_INFORM("RINFO"),
     PLAYER_INFORM("PINFO"),
     MONSTER_INFORM("MINFO"),
-    MESSAGE("MSSG"),
+    MESSAGE("MESSG"),
     NOTIFY("NOTIF"),
     INVALID("INVLD");
 
@@ -31,7 +31,7 @@ public enum ResponseType {
      * @return A regex pattern to search for response headers with.
      */
     public static String getResponseTypePattern() {
-        return "ACEPT|REJEC|RESLT|INFOM|MSSG|NOTIF";
+        return "ACEPT|REJEC|RESLT|INFOM|MESSG|NOTIF";
     }
 
     public static ResponseType fromString(String type) {

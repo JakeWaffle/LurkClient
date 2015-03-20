@@ -2,26 +2,37 @@ package com.lcsc.cs.lurkclient.game;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyListener;
 
 /**
  * Created by Jake on 3/11/2015.
  */
 public class InputBox {
-    public final JTextField inputBox;
+    private final JTextField _inputBox;
 
     public InputBox(int x, int y, int width, JPanel panel) {
-        inputBox    = new JTextField(width);
-        inputBox.setMinimumSize(inputBox.getPreferredSize());
+        _inputBox = new JTextField(width);
+        _inputBox.setMinimumSize(_inputBox.getPreferredSize());
 
-        Font oldFont         = this.inputBox.getFont();
+        Font oldFont         = this._inputBox.getFont();
         Font newFont         = new Font(oldFont.getFontName(), Font.PLAIN, 20);
-        this.inputBox.setFont(newFont);
+        this._inputBox.setFont(newFont);
 
         GridBagConstraints c = new GridBagConstraints();
         //c.weightx = c.weighty = 1.0;
         c.fill    = GridBagConstraints.HORIZONTAL;
         c.gridx   = x;
         c.gridy   = y;
-        panel.add(this.inputBox, c);
+        panel.add(this._inputBox, c);
+    }
+
+    public String getInput() {
+        String input = _inputBox.getText();
+        _inputBox.setText("");
+        return input;
+    }
+
+    public void addKeyListener(KeyListener listener) {
+        _inputBox.addKeyListener(listener);
     }
 }
