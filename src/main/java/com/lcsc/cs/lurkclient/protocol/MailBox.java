@@ -38,31 +38,55 @@ public class MailBox extends Thread {
 
             String message = new String(msg).replaceAll("\0", "");
 
-            if (message.startsWith("INFOM")) {
-                Pattern pattern = Pattern.compile("[0-9]+");
+            String completeMessage = "";
+
+            //Since the message doesn't contain INFOM, we're going to be skipping the while loop and moving onto the next part.
+            if (!message.contains("INFOM"))
+                completeMessage = message;
+
+            while (message.contains("INFOM")) {
+                Pattern pattern = Pattern.compile("(INFOM)\\s([0-9]+)");
                 Matcher matcher = pattern.matcher(message);
 
-                int msgLength   = 0;
-                if (matcher.find())
-                    msgLength       = Integer.parseInt( matcher.group(0));
+                int msgLength = 0;
+                if (matcher.find()) {
+                    String sMsgLength = matcher.group(2);
+                    msgLength = sMsgLength.length();
+                    msgLength += Integer.parseInt(sMsgLength);
 
-                //This adds to the length of the message, since 'INFOM ' is technically apart of the message.
-                msgLength       += "INFOM ".length();
-
-                //If we don't already have the entire message.
-                while (message.length() < msgLength) {
-                    Arrays.fill(msg, 0, msg.length, '\0');
-                    try {
-                        _serverReader.read(msg);
-                    } catch (IOException e) {
-                        _logger.error("MailBox was interrupted probably so it could join its thread.");
+                    if (!message.startsWith("INFOM")) {
+                        msgLength += message.indexOf("INFOM");
                     }
-                    message += new String(msg).replaceAll("\0", "");
+
+                    //This adds to the length of the message, since 'INFOM ' is technically apart of the message.
+                    msgLength += "INFOM ".length();
+
+                    //If we don't already have the entire message.
+                    while (message.length() < msgLength) {
+                        Arrays.fill(msg, 0, msg.length, '\0');
+                        try {
+                            _serverReader.read(msg);
+                        } catch (IOException e) {
+                            _logger.error("MailBox was interrupted probably so it could join its thread.");
+                        }
+                        message += new String(msg).replaceAll("\0", "");
+                    }
+                    completeMessage += message.substring(0, msgLength);
+
+                    //This will remove the current INFOM message from the string so that the next can be parsed or we can
+                    //just move on.
+                    if (message.length() > msgLength) {
+                        message = message.substring(msgLength);
+                    }
+                    else {
+                        message = "";
+                    }
                 }
             }
+            //TODO Add to Event Box informing that messages are being sent to players.
+            //TODO Add a 'charName>' to the beginning of all messages sent to players.
 
-            //TODO Bundle responses with the same ResponseType into a list and then send them to each response listener!
-            List<Response> responses = Response.getResponses(message);
+            List<Response> responses = Response.getResponses(completeMessage);
             _responseQueue.add(responses);
         }
     }

@@ -92,14 +92,14 @@ public class PlayerInfo {
         else
             _logger.warn("The given PlayerInfo string is invalid: "+info);
 
-        this.name           = name;
-        this.description    = description;
-        this.health         = health;
-        this.gold           = gold;
-        this.attack         = attack;
-        this.defense        = defense;
-        this.regen          = regen;
-        this.status         = status;
+        this.name           = name.trim();
+        this.description    = description.trim();
+        this.health         = health.trim();
+        this.gold           = gold.trim();
+        this.attack         = attack.trim();
+        this.defense        = defense.trim();
+        this.regen          = regen.trim();
+        this.status         = status.trim();
 
         if (this.name.equals("<name>") || this.description.equals("<description>")
                 || this.health.equals("<health>") || this.attack.equals("<attack>")

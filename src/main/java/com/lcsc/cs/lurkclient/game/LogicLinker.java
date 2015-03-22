@@ -133,19 +133,30 @@ public class LogicLinker {
             public void notify(List<Response> responses) {
                 for (Response response : responses) {
                     if (response.type == ResponseType.PLAYER_INFORM) {
-                        LogicLinker._logger.debug("Player Info: " + response.message);
-                        LogicLinker.this._curRoom.addPlayer(new PlayerInfo(response.message));
+                        PlayerInfo player = new PlayerInfo(response.message);
+                        //This will prevent the player's character from showing up in the list of players!
+                        if (!player.name.equals(LogicLinker.this._playerStats.name.getText())) {
+                            LogicLinker._logger.debug("Player Info: " + response.message);
+                            LogicLinker.this._curRoom.addPlayer(player);
+                        }
+                        else {
+                            LogicLinker._logger.debug("User's Character Info: " + response.message);
+                        }
                     }
                 }
             }
         });
 
-        //This will just update the EventBox with notify messages from the server.
+        //This will just update the EventBox with responses from the server.
         _mailMan.registerListener(new ResponseListener() {
             @Override
             public void notify(List<Response> responses) {
                 for (Response response : responses) {
                     if (response.type == ResponseType.NOTIFY || response.type == ResponseType.MESSAGE)
+                        LogicLinker.this._eventBox.appendText(response.message);
+                    else if (response.type == ResponseType.REJECTED)
+                        LogicLinker.this._eventBox.appendText(response.message);
+                    else if (response.type == ResponseType.RESULT)
                         LogicLinker.this._eventBox.appendText(response.message);
                 }
             }
@@ -179,7 +190,16 @@ public class LogicLinker {
             public void actionPerformed(ActionEvent e) {
                 String selectedPlayer = _curRoom.getSelectedPlayer();
                 if (selectedPlayer != null) {
-                    String message = selectedPlayer + " " + LogicLinker.this._inputBox.getInput();
+                    String userInput = LogicLinker.this._inputBox.getInput();
+                    String message = String.format("%s (Private)From:%s>%s",
+                            selectedPlayer,
+                            LogicLinker.this._playerStats.name.getText(),
+                            userInput);
+
+                    LogicLinker.this._eventBox.appendText(String.format("(Private)To:%s>%s",
+                            selectedPlayer,
+                            userInput));
+
                     LogicLinker.this._mailMan.sendMessage(new Command(CommandType.ACTION, ActionType.MESSAGE, message));
                 }
                 else

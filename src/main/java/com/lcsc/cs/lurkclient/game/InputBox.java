@@ -29,7 +29,7 @@ public class InputBox {
     public String getInput() {
         String input = _inputBox.getText();
         _inputBox.setText("");
-        return input;
+        return input.trim();
     }
 
     public void addKeyListener(KeyListener listener) {

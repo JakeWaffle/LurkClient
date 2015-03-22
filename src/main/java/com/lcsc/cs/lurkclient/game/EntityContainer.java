@@ -1,5 +1,9 @@
 package com.lcsc.cs.lurkclient.game;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.swing.*;
@@ -10,6 +14,7 @@ import java.awt.*;
  * This just handles the elements within some JList.
  */
 public class EntityContainer {
+    private static final Logger     _logger      = LoggerFactory.getLogger(LogicLinker.class);
     private final DefaultListModel  _entities;
     private final JList             _entityList;
 
@@ -46,8 +51,17 @@ public class EntityContainer {
 
     //This makes sure that every added element is unique!
     public void add(String element) {
-        if (!_entities.contains(element))
-            _entities.addElement(element);
+        if (!_entities.contains(element)) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    _entities.addElement(element);
+                    _logger.debug(String.format("Element added to EntityContainer: %s", element));
+                }
+            });
+        }
+        else
+            _logger.debug(String.format("Element already exists in EntityContainer: %s", element));
     }
 
     /**

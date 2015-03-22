@@ -63,8 +63,8 @@ public class RoomInfo {
         else
             _logger.warn("The given RoomInfo string is invalid: "+info);
 
-        this.name           = name;
-        this.description    = description;
+        this.name           = name.trim();
+        this.description    = description.trim();
 
         if (this.name.equals("<name>") || this.description.equals("<description>"))
             _logger.warn("The given RoomInfo string has no name or description: "+info);

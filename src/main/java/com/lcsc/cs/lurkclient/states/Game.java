@@ -123,8 +123,9 @@ public class Game implements StateInterface{
 
         _mailMan.sendMessage(new Command(CommandType.START));
 
+        updateGame();
         while (!_finished) {
-            updateGame();
+
             try {
                 Thread.sleep(5000);
             } catch(InterruptedException ex) {
