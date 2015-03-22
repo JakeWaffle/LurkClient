@@ -42,6 +42,9 @@ public class Response {
             Response newResp = new Response(type, message.substring(start+1));
             responses.add(newResp);
         }
+        else {
+            _logger.error("Message doesn't have any valid headers for some reason: "+message);
+        }
 
         return responses;
     }

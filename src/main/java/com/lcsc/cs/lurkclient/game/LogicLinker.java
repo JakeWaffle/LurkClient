@@ -96,6 +96,23 @@ public class LogicLinker {
                         matcher = pattern.matcher(response.message);
                         if (matcher.find())
                             LogicLinker.this._playerStats.health.setText(matcher.group(2).trim());
+
+                        pattern = Pattern.compile("Player:");
+                        matcher = pattern.matcher(response.message);
+                        List<String> playerNames = new ArrayList<String>();
+                        //We need to match the first "Player: " to get an idea of where the player's name starts.
+                        if (matcher.find()) {
+                            //The message starts after this header and ends before the next header.
+                            int start           = matcher.end();
+                            int end             = -1;
+                            while (matcher.find()) {
+                                end             = matcher.start();
+                                playerNames.add(response.message.substring(start+1, end).trim());
+                                start           = matcher.end();
+                            }
+                            playerNames.add(response.message.substring(start+1).trim());
+                        }
+                        LogicLinker.this._curRoom.updateGlobalPlayer(playerNames);
                     }
                 }
             }
@@ -137,7 +154,7 @@ public class LogicLinker {
                         //This will prevent the player's character from showing up in the list of players!
                         if (!player.name.equals(LogicLinker.this._playerStats.name.getText())) {
                             LogicLinker._logger.debug("Player Info: " + response.message);
-                            LogicLinker.this._curRoom.addPlayer(player);
+                            LogicLinker.this._curRoom.addLocalPlayer(player);
                         }
                         else {
                             LogicLinker._logger.debug("User's Character Info: " + response.message);
@@ -170,7 +187,7 @@ public class LogicLinker {
                 String selectedRoom = _curRoom.getSelectedRoom();
                 if (selectedRoom != null) {
                     Command cmd = new Command(CommandType.ACTION, ActionType.CHANGE_ROOM, selectedRoom);
-                    _curRoom.clear();
+                    _curRoom.clearLocalBeings();
                     LogicLinker.this._mailMan.sendMessage(cmd);
                 }
                 else
@@ -189,7 +206,7 @@ public class LogicLinker {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedPlayer = _curRoom.getSelectedPlayer();
-                if (selectedPlayer != null) {
+                if (selectedPlayer != null && !LogicLinker.this._inputBox.isInputEmpty()) {
                     String userInput = LogicLinker.this._inputBox.getInput();
                     String message = String.format("%s (Private)From:%s>%s",
                             selectedPlayer,
@@ -202,8 +219,11 @@ public class LogicLinker {
 
                     LogicLinker.this._mailMan.sendMessage(new Command(CommandType.ACTION, ActionType.MESSAGE, message));
                 }
+                else if (LogicLinker.this._inputBox.isInputEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Enter a message into the input box!", "Invalid State", JOptionPane.WARNING_MESSAGE);
+                }
                 else
-                    JOptionPane.showMessageDialog(null, "Select a player before clicking the 'Message' button!", "Invalid State", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Select a global player before clicking the 'Message' button!", "Invalid State", JOptionPane.WARNING_MESSAGE);
             }
         });
     }
@@ -213,10 +233,10 @@ public class LogicLinker {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    JTextField textField = (JTextField) e.getSource();
-                    String text = textField.getText();
+                    JTextField inputBox = (JTextField) e.getSource();
+                    String text = inputBox.getText();
                     _eventBox.appendText(text);
-                    textField.setText("");
+                    inputBox.setText("");
                 }
             }
 

@@ -10,12 +10,17 @@ public class Room {
     private       RoomInfo          _roomInfo = null;
     private final EntityContainer   _monsters;
     private final EntityContainer   _connections;
-    private final EntityContainer   _players;
+    private final EntityContainer   _localPlayers;
+    private final EntityContainer   _globalPlayers;
 
-    public Room(EntityContainer monsters, EntityContainer rooms, EntityContainer players) {
+    private final List<PlayerInfo>  _localPlayersInfo;
+    public Room(EntityContainer monsters, EntityContainer rooms, EntityContainer localPlayers, EntityContainer globalPlayers) {
         _monsters       = monsters;
         _connections    = rooms;
-        _players        = players;
+        _localPlayers   = localPlayers;
+        _globalPlayers  = globalPlayers;
+
+        _localPlayersInfo   = new ArrayList<PlayerInfo>();
     }
 
     /**
@@ -31,27 +36,31 @@ public class Room {
      * @return A string representing a player's name. If no player is selected this will be null.
      */
     public String getSelectedPlayer() {
-        return _players.getSelectedElement();
+        return _globalPlayers.getSelectedElement();
     }
 
     /**
      * This method is meant to clear the room's monsters and players in case one of them has left.
      * After this is called the server will send back a message that displays which players/monsters are still
      * in the room.
-     * TODO Later this class should put the players and monsters into a list saying they may or may not still exist.
-     * Then they'll be taken care of accordingly after the next batch of player informs has been received.
      */
-    public void clear() {
+    public void clearLocalBeings() {
         _monsters.clear();
-        _players.clear();
+        _localPlayers.clear();
+        _localPlayersInfo.clear();
     }
 
     public void addMonster(MonsterInfo monster) {
         _monsters.add(monster.name);
     }
 
-    public void addPlayer(PlayerInfo player) {
-        _players.add(player.name);
+    public void addLocalPlayer(PlayerInfo player) {
+        _localPlayers.add(player.name);
+        _localPlayersInfo.add(player);
+    }
+
+    public void updateGlobalPlayer(List<String> playerNames) {
+        _globalPlayers.update(playerNames);
     }
 
     /**
@@ -65,3 +74,4 @@ public class Room {
         _connections.update(room.connections);
     }
 }
+

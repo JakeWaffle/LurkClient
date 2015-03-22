@@ -26,7 +26,8 @@ public class Game implements StateInterface{
     private Room            _curRoom;
     private EntityContainer _rooms;
     private EntityContainer _monsters;
-    private EntityContainer _players;
+    private EntityContainer _localPlayers;
+    private EntityContainer _globalPlayers;
     private PlayerStats     _stats;
 
     private EventBox        _eventBox;
@@ -68,11 +69,12 @@ public class Game implements StateInterface{
 
         JPanel listPanel = new JPanel(new GridBagLayout());
 
-        _rooms      = new EntityContainer("Rooms", 0, 0, listPanel);
-        _monsters   = new EntityContainer("Monsters", 0, 2, listPanel);
-        _players    = new EntityContainer("Players", 0, 4, listPanel);
+        _rooms          = new EntityContainer("Rooms", 0, 0, listPanel);
+        _monsters       = new EntityContainer("Monsters", 0, 2, listPanel);
+        _localPlayers   = new EntityContainer("Local Players", 0, 4, listPanel);
+        _globalPlayers  = new EntityContainer("Active Players", 0, 6, listPanel);
 
-        _curRoom    = new Room(_monsters, _rooms, _players);
+        _curRoom    = new Room(_monsters, _rooms, _localPlayers, _globalPlayers);
 
         c               = new GridBagConstraints();
         c.weightx = c.weighty = 1.0;
@@ -123,9 +125,8 @@ public class Game implements StateInterface{
 
         _mailMan.sendMessage(new Command(CommandType.START));
 
-        updateGame();
         while (!_finished) {
-
+            updateGame();
             try {
                 Thread.sleep(5000);
             } catch(InterruptedException ex) {

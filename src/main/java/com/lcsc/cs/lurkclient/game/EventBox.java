@@ -19,7 +19,7 @@ import java.awt.*;
  */
 public class EventBox {
     private static final Logger     logger      = LoggerFactory.getLogger(LoginForm.class);
-    private static final int        MAX_LINES   = 100;
+    private static final int        MAX_LINES   = 150;
 
     public  final        JTextArea  eventText;
 

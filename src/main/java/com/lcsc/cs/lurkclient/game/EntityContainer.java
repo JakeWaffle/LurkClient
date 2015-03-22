@@ -68,12 +68,18 @@ public class EntityContainer {
      * This will add a list of the current elements in the EntityContainer.
      * With this list we will remove/add elements as needed so that the elements
      * list and the entity container have the same elements.
-     * @param elements The current list of elements.
+     * @param curElements The current list of elements.
      */
-    public void update(List<String> elements) {
-        clear();
-        for (String element : elements)
-            add(element);
+    public void update(List<String> curElements) {
+        //Removes all elements that aren't in the current elements.
+        for (Object element : _entities.toArray()) {
+            String oldElement = (String) element;
+            if (!curElements.contains(oldElement))
+                remove(oldElement);
+        }
+        //Adds all elements that aren't in the container already.
+        for (String curElement : curElements)
+            add(curElement);
     }
 
     public void remove(String element) {

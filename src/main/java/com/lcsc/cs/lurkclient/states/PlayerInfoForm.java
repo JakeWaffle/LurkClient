@@ -36,14 +36,12 @@ public class PlayerInfoForm implements StateInterface {
 
     //These will allow us to handle the messages sent back from the server.
     //They'll tell us which stat the message was meant for.
-    private boolean     statIssue;
     private int         statsSet;
 
     public PlayerInfoForm() {
         this.endProgram = false;
         this.finished   = false;
 
-        this.statIssue  = false;
         this.statsSet   = 0;
     }
 
@@ -329,33 +327,29 @@ public class PlayerInfoForm implements StateInterface {
     }
 
     private synchronized void handleStats(Response response) {
-        if (!this.statIssue) {
-            switch (response.getResponse()) {
-                case "Stats Too High":
-                    if (this.statsSet == 1) {
-                        JOptionPane.showMessageDialog(null, "Your player's attack stat is too high!", "Stat Response", JOptionPane.WARNING_MESSAGE);
-                    } else if (this.statsSet == 2) {
-                        JOptionPane.showMessageDialog(null, "Your player's defense stat is too high!", "Stat Response", JOptionPane.WARNING_MESSAGE);
-                    } else if (this.statsSet == 3) {
-                        JOptionPane.showMessageDialog(null, "Your player's regen stat is too high!", "Stat Response", JOptionPane.WARNING_MESSAGE);
-                    }
-                    this.statIssue = true;
-                    break;
-                case "Incorrect State":
-                    JOptionPane.showMessageDialog(null, "This is the wrong state for setting stats!", "Stat Response", JOptionPane.WARNING_MESSAGE);
-                    this.statIssue = true;
-                    break;
-                case "Fine":
-                    if (this.statsSet == 3) {
-                        this.nextState = State.GAME;
-                        this.finished = true;
-                    }
-                    break;
-                default:
-                    logger.error("Invalid Response for PlayerInfoForm:\n"+response.toString());
-                    break;
-            }
-            this.statsSet += 1;
+        switch (response.getResponse()) {
+            case "Stats Too High":
+                if (this.statsSet == 1) {
+                    JOptionPane.showMessageDialog(null, "Your player's attack stat is too high!", "Stat Response", JOptionPane.WARNING_MESSAGE);
+                } else if (this.statsSet == 2) {
+                    JOptionPane.showMessageDialog(null, "Your player's defense stat is too high!", "Stat Response", JOptionPane.WARNING_MESSAGE);
+                } else if (this.statsSet == 3) {
+                    JOptionPane.showMessageDialog(null, "Your player's regen stat is too high!", "Stat Response", JOptionPane.WARNING_MESSAGE);
+                }
+                break;
+            case "Incorrect State":
+                JOptionPane.showMessageDialog(null, "This is the wrong state for setting stats!", "Stat Response", JOptionPane.WARNING_MESSAGE);
+                break;
+            case "Fine":
+                if (this.statsSet == 3) {
+                    this.nextState = State.GAME;
+                    this.finished = true;
+                }
+                this.statsSet += 1;
+                break;
+            default:
+                logger.error("Invalid Response for PlayerInfoForm:\n"+response.toString());
+                break;
         }
     }
 

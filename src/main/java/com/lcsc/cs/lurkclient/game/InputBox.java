@@ -1,6 +1,10 @@
 package com.lcsc.cs.lurkclient.game;
 
+import com.lcsc.cs.lurkclient.tools.DocumentSizeFilter;
+
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.awt.event.KeyListener;
 
@@ -24,6 +28,10 @@ public class InputBox {
         c.gridx   = x;
         c.gridy   = y;
         panel.add(this._inputBox, c);
+    }
+
+    public boolean isInputEmpty() {
+        return _inputBox.getText().isEmpty();
     }
 
     public String getInput() {

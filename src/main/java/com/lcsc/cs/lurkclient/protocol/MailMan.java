@@ -84,7 +84,7 @@ public class MailMan extends Thread {
         this.done = true;
         if (this.sock != null && this.out != null && this.in != null) {
             try {
-                this.framer.stopFramer();
+                this.framer.stopReceiving();
                 logger.debug("Intentionally closing the socket so the MailBox isn't blocking on a read anymore!");
                 this.sock.close();
                 this.out.close();
