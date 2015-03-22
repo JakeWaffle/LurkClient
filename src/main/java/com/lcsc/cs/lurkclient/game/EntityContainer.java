@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
@@ -18,9 +19,8 @@ public class EntityContainer {
     private final DefaultListModel  _entities;
     private final JList             _entityList;
 
-    public EntityContainer(String title, int x, int y, JPanel panel) {
+    public EntityContainer(String title, int x, int y, int selectionMode, JPanel panel) {
         JLabel titleLbl = new JLabel(title);
-
         Font oldFont = titleLbl.getFont();
         Font newFont = new Font(oldFont.getFontName(), Font.PLAIN, 25);
         titleLbl.setFont(newFont);
@@ -34,7 +34,7 @@ public class EntityContainer {
         _entities = new DefaultListModel();
 
         _entityList = new JList(_entities);
-        _entityList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        _entityList.setSelectionMode(selectionMode);
 
         JScrollPane scrollList = new JScrollPane(_entityList);
         scrollList.setPreferredSize(new Dimension(100, 100));
@@ -88,6 +88,18 @@ public class EntityContainer {
 
     public String getSelectedElement() {
         return (String)_entityList.getSelectedValue();
+    }
+
+    public List<String> getSelectedElements() {
+        return _entityList.getSelectedValuesList();
+    }
+
+    public List<String> getAllElements() {
+        List<String> elements = new ArrayList<String>();
+        for (Object element : _entities.toArray()) {
+            elements.add((String)element);
+        }
+        return elements;
     }
 
     public void clear() {

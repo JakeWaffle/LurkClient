@@ -69,10 +69,10 @@ public class Game implements StateInterface{
 
         JPanel listPanel = new JPanel(new GridBagLayout());
 
-        _rooms          = new EntityContainer("Rooms", 0, 0, listPanel);
-        _monsters       = new EntityContainer("Monsters", 0, 2, listPanel);
-        _localPlayers   = new EntityContainer("Local Players", 0, 4, listPanel);
-        _globalPlayers  = new EntityContainer("Active Players", 0, 6, listPanel);
+        _rooms          = new EntityContainer("Rooms", 0, 0, ListSelectionModel.SINGLE_SELECTION, listPanel);
+        _monsters       = new EntityContainer("Monsters", 0, 2, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION, listPanel);
+        _localPlayers   = new EntityContainer("Local Players", 0, 4, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION, listPanel);
+        _globalPlayers  = new EntityContainer("Active Players", 0, 6, ListSelectionModel.MULTIPLE_INTERVAL_SELECTION, listPanel);
 
         _curRoom    = new Room(_monsters, _rooms, _localPlayers, _globalPlayers);
 

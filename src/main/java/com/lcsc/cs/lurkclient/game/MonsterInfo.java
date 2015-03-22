@@ -23,7 +23,7 @@ public class MonsterInfo {
     public MonsterInfo(String info) {
         this.info      = info;
 
-        Pattern pattern = Pattern.compile("Name: |Description: |Health: |Gold: |Attack: |Defense: |Regen: |Status: ");
+        Pattern pattern = Pattern.compile("Name:|Description:|Health:|Gold:|Attack:|Defense:|Regen:|Status:");
         Matcher matcher = pattern.matcher(info);
 
         String name         = "<name>";
@@ -41,18 +41,18 @@ public class MonsterInfo {
             while (matcher.find()) {
                 end             = matcher.start();
 
-                if (type.equals("Name: "))
-                    name        = info.substring(start+1, end);
-                else if (type.equals("Description: "))
-                    description = info.substring(start+1, end);
-                else if (type.equals("Health: "))
-                    health      = info.substring(start+1, end);
-                else if (type.equals("Attack: "))
-                    attack      = info.substring(start+1, end);
-                else if (type.equals("Defense: "))
-                    defense     = info.substring(start+1, end);
-                else if (type.equals("Regen: "))
-                    regen       = info.substring(start+1, end);
+                if (type.equals("Name:"))
+                    name        = info.substring(start, end);
+                else if (type.equals("Description:"))
+                    description = info.substring(start, end);
+                else if (type.equals("Health:"))
+                    health      = info.substring(start, end);
+                else if (type.equals("Attack:"))
+                    attack      = info.substring(start, end);
+                else if (type.equals("Defense:"))
+                    defense     = info.substring(start, end);
+                else if (type.equals("Regen:"))
+                    regen       = info.substring(start, end);
                 else
                     _logger.warn("Invalid Regex group for MonsterInfo: " + type);
 
@@ -60,18 +60,18 @@ public class MonsterInfo {
                 start           = matcher.end();
             }
 
-            if (type.equals("Name: "))
-                name        = info.substring(start+1);
-            else if (type.equals("Description: "))
-                description = info.substring(start+1);
-            else if (type.equals("Health: "))
-                health      = info.substring(start+1);
-            else if (type.equals("Attack: "))
-                attack      = info.substring(start+1);
-            else if (type.equals("Defense: "))
-                defense     = info.substring(start+1);
-            else if (type.equals("Regen: "))
-                regen       = info.substring(start+1);
+            if (type.equals("Name:"))
+                name        = info.substring(start);
+            else if (type.equals("Description:"))
+                description = info.substring(start);
+            else if (type.equals("Health:"))
+                health      = info.substring(start);
+            else if (type.equals("Attack:"))
+                attack      = info.substring(start);
+            else if (type.equals("Defense:"))
+                defense     = info.substring(start);
+            else if (type.equals("Regen:"))
+                regen       = info.substring(start);
             else
                 _logger.warn("Invalid Regex group for RoomInfo: "+type);
         }

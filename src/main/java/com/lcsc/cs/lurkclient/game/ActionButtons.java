@@ -9,7 +9,9 @@ import java.awt.*;
 public class ActionButtons {
     public final JButton fightBtn;
     public final JButton changeRoomBtn;
-    public final JButton messageBtn;
+    public final JButton privateMessageBtn;
+    public final JButton publicMessageBtn;
+    public final JButton infoBtn;
 
     public ActionButtons(JPanel mainPanel, int x, int y, int btnPanelHeight) {
         JPanel buttonPanel  = new JPanel(new GridBagLayout());
@@ -40,18 +42,44 @@ public class ActionButtons {
         c.gridy             = 1;
         buttonPanel.add(changeRoomBtn, c);
 
-        messageBtn          = new JButton("Send Message");
+        privateMessageBtn   = new JButton("Private Message");
 
-        oldFont             = messageBtn.getFont();
+        oldFont             = privateMessageBtn.getFont();
         newFont             = new Font(oldFont.getFontName(), Font.PLAIN, 20);
-        messageBtn.setFont(newFont);
+        privateMessageBtn.setFont(newFont);
 
         c                   = new GridBagConstraints();
         c.weightx = c.weighty = 1.0;
         c.fill              = GridBagConstraints.HORIZONTAL;
         c.insets            = new Insets(0, 0, 10, 0);
         c.gridy             = 2;
-        buttonPanel.add(messageBtn, c);
+        buttonPanel.add(privateMessageBtn, c);
+
+        publicMessageBtn    = new JButton("Public Message");
+
+        oldFont             = publicMessageBtn.getFont();
+        newFont             = new Font(oldFont.getFontName(), Font.PLAIN, 20);
+        publicMessageBtn.setFont(newFont);
+
+        c                   = new GridBagConstraints();
+        c.weightx = c.weighty = 1.0;
+        c.fill              = GridBagConstraints.HORIZONTAL;
+        c.insets            = new Insets(0, 0, 10, 0);
+        c.gridy             = 3;
+        buttonPanel.add(publicMessageBtn, c);
+
+        infoBtn             = new JButton("Info");
+
+        oldFont             = infoBtn.getFont();
+        newFont             = new Font(oldFont.getFontName(), Font.PLAIN, 20);
+        infoBtn.setFont(newFont);
+
+        c                   = new GridBagConstraints();
+        c.weightx = c.weighty = 1.0;
+        c.fill              = GridBagConstraints.HORIZONTAL;
+        c.insets            = new Insets(0, 0, 10, 0);
+        c.gridy             = 4;
+        buttonPanel.add(infoBtn, c);
 
         c                   = new GridBagConstraints();
         c.weightx = c.weighty = 1.0;

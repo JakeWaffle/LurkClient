@@ -20,7 +20,7 @@ public class RoomInfo {
     public final List<String>   monsters    = new ArrayList<String>();
 
     public RoomInfo(String info) {
-        Pattern pattern = Pattern.compile("Name: |Description: |Connection: |Monster: ");
+        Pattern pattern = Pattern.compile("Name:|Description:|Connection:|Monster:");
         Matcher matcher = pattern.matcher(info);
 
         String name         = "<name>";
@@ -34,14 +34,14 @@ public class RoomInfo {
             while (matcher.find()) {
                 end             = matcher.start();
 
-                if (type.equals("Name: "))
-                    name        = info.substring(start+1, end);
-                else if (type.equals("Description: "))
-                    description = info.substring(start+1, end);
-                else if (type.equals("Connection: "))
-                    connections.add(info.substring(start + 1, end));
-                else if (type.equals("Monster: "))
-                    monsters.add(info.substring(start + 1, end));
+                if (type.equals("Name:"))
+                    name        = info.substring(start, end);
+                else if (type.equals("Description:"))
+                    description = info.substring(start, end);
+                else if (type.equals("Connection:"))
+                    connections.add(info.substring(start, end).trim());
+                else if (type.equals("Monster:"))
+                    monsters.add(info.substring(start, end).trim());
                 else
                     _logger.warn("Invalid Regex group for RoomInfo: " + type);
 
@@ -50,13 +50,13 @@ public class RoomInfo {
             }
 
             if (type.equals("Name: "))
-                name        = info.substring(start+1);
-            else if (type.equals("Description: "))
-                description = info.substring(start+1);
-            else if (type.equals("Connection: "))
-                connections.add(info.substring(start + 1));
-            else if (type.equals("Monster: "))
-                monsters.add(info.substring(start + 1));
+                name        = info.substring(start);
+            else if (type.equals("Description:"))
+                description = info.substring(start);
+            else if (type.equals("Connection:"))
+                connections.add(info.substring(start).trim());
+            else if (type.equals("Monster:"))
+                monsters.add(info.substring(start).trim());
             else
                 _logger.warn("Invalid Regex group for RoomInfo: "+type);
         }

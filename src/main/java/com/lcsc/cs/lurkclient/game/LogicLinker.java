@@ -46,7 +46,7 @@ public class LogicLinker {
 
     public void setActionListeners() {
         setServerResponseListener();
-        setEnterKeyListener();
+        //setEnterKeyListener();
         setButtonListeners();
     }
 
@@ -112,7 +112,7 @@ public class LogicLinker {
                             }
                             playerNames.add(response.message.substring(start+1).trim());
                         }
-                        LogicLinker.this._curRoom.updateGlobalPlayer(playerNames);
+                        LogicLinker.this._curRoom.updateGlobalPlayers(playerNames);
                     }
                 }
             }
@@ -125,7 +125,10 @@ public class LogicLinker {
                 for (Response response : responses) {
                     if (response.type == ResponseType.ROOM_INFORM) {
                         LogicLinker._logger.debug("Room Info: " + response.message);
-                        LogicLinker.this._curRoom.updateRoom(new RoomInfo(response.message));
+                        RoomInfo roomInfo = new RoomInfo(response.message);
+
+                        LogicLinker.this._eventBox.appendText("Entering " + roomInfo.name + ":\n" + roomInfo.description + "\n");
+                        LogicLinker.this._curRoom.updateRoom(roomInfo);
                     }
                 }
             }
@@ -170,11 +173,11 @@ public class LogicLinker {
             public void notify(List<Response> responses) {
                 for (Response response : responses) {
                     if (response.type == ResponseType.NOTIFY || response.type == ResponseType.MESSAGE)
-                        LogicLinker.this._eventBox.appendText(response.message);
+                        LogicLinker.this._eventBox.appendText(response.message+"\n");
                     else if (response.type == ResponseType.REJECTED)
-                        LogicLinker.this._eventBox.appendText(response.message);
+                        LogicLinker.this._eventBox.appendText(response.message+"\n");
                     else if (response.type == ResponseType.RESULT)
-                        LogicLinker.this._eventBox.appendText(response.message);
+                        LogicLinker.this._eventBox.appendText(response.message+"\n");
                 }
             }
         });
@@ -202,28 +205,84 @@ public class LogicLinker {
             }
         });
 
-        _actionBtns.messageBtn.addActionListener(new ActionListener() {
+        _actionBtns.privateMessageBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedPlayer = _curRoom.getSelectedPlayer();
-                if (selectedPlayer != null && !LogicLinker.this._inputBox.isInputEmpty()) {
+                List<String> selectedPlayers = _curRoom.getSelectedGlobalPlayers();
+                if (selectedPlayers.size() > 0 && !LogicLinker.this._inputBox.isInputEmpty()) {
                     String userInput = LogicLinker.this._inputBox.getInput();
-                    String message = String.format("%s (Private)From:%s>%s",
-                            selectedPlayer,
-                            LogicLinker.this._playerStats.name.getText(),
-                            userInput);
+                    for (String selectedPlayer : selectedPlayers) {
+                        String message = String.format("%s (Private)From:%s>%s",
+                                selectedPlayer,
+                                LogicLinker.this._playerStats.name.getText(),
+                                userInput);
 
-                    LogicLinker.this._eventBox.appendText(String.format("(Private)To:%s>%s",
-                            selectedPlayer,
-                            userInput));
+                        LogicLinker.this._eventBox.appendText(String.format("(Private)To:%s>%s",
+                                selectedPlayer,
+                                userInput));
 
-                    LogicLinker.this._mailMan.sendMessage(new Command(CommandType.ACTION, ActionType.MESSAGE, message));
+                        LogicLinker.this._mailMan.sendMessage(new Command(CommandType.ACTION, ActionType.MESSAGE, message));
+                    }
+                    LogicLinker.this._eventBox.appendText("\n");
                 }
                 else if (LogicLinker.this._inputBox.isInputEmpty()) {
                     JOptionPane.showMessageDialog(null, "Enter a message into the input box!", "Invalid State", JOptionPane.WARNING_MESSAGE);
                 }
                 else
                     JOptionPane.showMessageDialog(null, "Select a global player before clicking the 'Message' button!", "Invalid State", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        _actionBtns.publicMessageBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!LogicLinker.this._inputBox.isInputEmpty()) {
+                    List<String> playerNames = _curRoom.getGlobalPlayers();
+                    String userInput = LogicLinker.this._inputBox.getInput();
+
+                    LogicLinker.this._eventBox.appendText(String.format("(Public)>%s\n",
+                            userInput));
+
+                    for (String playerName : playerNames) {
+                        String message = String.format("%s (Public)From:%s>%s",
+                                playerName,
+                                LogicLinker.this._playerStats.name.getText(),
+                                userInput);
+
+                        LogicLinker.this._mailMan.sendMessage(new Command(CommandType.ACTION, ActionType.MESSAGE, message));
+                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(null, "Enter a message into the input box!", "Invalid State", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        });
+
+        _actionBtns.infoBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean nothingSelected = true;
+
+                List<String> monsterNames = LogicLinker.this._curRoom.getSelectedMonsters();
+                if (monsterNames.size() > 0) {
+                    for (String monsterName : monsterNames) {
+                        MonsterInfo monsterInfo = LogicLinker.this._curRoom.getMonsterInfo(monsterName);
+                        LogicLinker.this._eventBox.appendText(monsterInfo.info+"\n");
+                    }
+                    nothingSelected = false;
+                }
+
+                List<String> playerNames = LogicLinker.this._curRoom.getSelectedLocalPlayers();
+                if (playerNames.size() > 0) {
+                    for (String playerName : playerNames) {
+                        PlayerInfo playerInfo = LogicLinker.this._curRoom.getLocalPlayerInfo(playerName);
+                        LogicLinker.this._eventBox.appendText(playerInfo.info+"\n");
+                    }
+                    nothingSelected = false;
+                }
+
+                if (nothingSelected)
+                    JOptionPane.showMessageDialog(null, "Select a local player or a monster!", "Invalid State", JOptionPane.WARNING_MESSAGE);
             }
         });
     }
