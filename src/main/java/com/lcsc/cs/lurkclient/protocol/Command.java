@@ -13,6 +13,14 @@ public class Command {
     private         ActionType  _actionType = null;
     private         String      _body = null;
 
+    private         String      _extensionHeader;
+
+    public Command(String extensionHeader, String parameter) {
+        _type               = CommandType.EXTENSION;
+        _extensionHeader    = extensionHeader;
+        _body               = parameter;
+    }
+
     public Command(CommandType ctype, ActionType atype, String body) {
         _type       = ctype;
         _actionType = atype;
@@ -38,14 +46,24 @@ public class Command {
     }
 
     private String buildMessage() {
-        String message = _type.getCommandHeader();
+        String message;
 
-        if (_actionType != null) {
-            message += " "+_actionType.getActionName();
+        if (_type == CommandType.EXTENSION) {
+            message = _extensionHeader;
+            if (_body != null) {
+                message += " " + _body;
+            }
         }
+        else {
+            message = _type.getCommandHeader();
 
-        if (_body != null) {
-            message += " "+_body;
+            if (_actionType != null) {
+                message += " " + _actionType.getActionName();
+            }
+
+            if (_body != null) {
+                message += " " + _body;
+            }
         }
 
         return message;

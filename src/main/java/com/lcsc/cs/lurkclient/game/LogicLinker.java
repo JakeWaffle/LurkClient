@@ -1,16 +1,13 @@
 package com.lcsc.cs.lurkclient.game;
 
 import com.lcsc.cs.lurkclient.protocol.*;
-import com.lcsc.cs.lurkclient.states.LoginForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.rmi.runtime.Log;
 
 import java.awt.event.*;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
-import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,9 +59,11 @@ public class LogicLinker {
                     if (response.type == ResponseType.QUERY_INFORM) {
                         LogicLinker.this.processQueryInfo(response);
                     }
-                    else if (response.type == ResponseType.NOTIFY ||response.type == ResponseType.REJECTED
-                            || response.type == ResponseType.RESULT) {
+                    else if (response.type == ResponseType.NOTIFY || response.type == ResponseType.RESULT) {
                         LogicLinker.this._eventBox.appendText("\n" + response.message);
+                    }
+                    else if (response.type == ResponseType.REJECTED) {
+                        LogicLinker.this._eventBox.appendText("\nRejected: " + response.message);
                     }
                     else if (response.type == ResponseType.MESSAGE) {
                         LogicLinker.this._eventBox.appendText(response.message);
@@ -138,8 +137,10 @@ public class LogicLinker {
         LogicLinker._logger.debug("Room Info: " + response.message);
         RoomInfo roomInfo = new RoomInfo(response.message);
 
-        LogicLinker.this._eventBox.appendText("\nEntering " + roomInfo.name + ":\n" + roomInfo.description);
-        LogicLinker.this._curRoom.updateRoom(roomInfo);
+        if (!_playerStats.location.getText().equals(roomInfo.name)) {
+            LogicLinker.this._eventBox.appendText("\nEntering " + roomInfo.name + ":\n" + roomInfo.description);
+            LogicLinker.this._curRoom.updateRoom(roomInfo);
+        }
     }
 
     private synchronized void processMonsterInfo(Response response) {
@@ -278,17 +279,81 @@ public class LogicLinker {
                     //These are all unique parameter names that mean that the parameter can be selected from
                     //one of the EntityContainers!
                     if (info.parameter.equals("Being")) {
+                        String beingName                = null;
+                        List<String> localPlayerNames   = LogicLinker.this._curRoom.getSelectedLocalPlayers();
+                        List<String> globalPlayerNames  = _curRoom.getSelectedGlobalPlayers();
+                        List<String> monsterNames       = LogicLinker.this._curRoom.getSelectedMonsters();
 
+                        if (localPlayerNames.size() == 1 && globalPlayerNames.size() == 0 && monsterNames.size() == 0) {
+                            beingName = localPlayerNames.get(0);
+                        }
+                        else if (globalPlayerNames.size() == 1 && localPlayerNames.size() == 0 && monsterNames.size() == 0) {
+                            beingName = globalPlayerNames.get(0);
+                        }
+                        else if (monsterNames.size() == 1 && localPlayerNames.size() == 0 && globalPlayerNames.size() == 0) {
+                            beingName = monsterNames.get(0);
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(null, "Select one monster, local player or active player!", "Invalid State", JOptionPane.WARNING_MESSAGE);
+                            return;
+                        }
+
+                        if (beingName != null) {
+                            _eventBox.appendText("\nExtension "+info.niceName+" has been used!");
+                            _mailMan.sendMessage(new Command(info.name, beingName));
+                        }
                     }
                     else if (info.parameter.equals("Player Name")) {
+                        String playerName               = null;
+                        List<String> localPlayerNames   = LogicLinker.this._curRoom.getSelectedLocalPlayers();
+                        List<String> globalPlayerNames  = _curRoom.getSelectedGlobalPlayers();
 
+                        if (localPlayerNames.size() == 1 && globalPlayerNames.size() == 0) {
+                            playerName = localPlayerNames.get(0);
+                        }
+                        else if (globalPlayerNames.size() == 1&& localPlayerNames.size() == 0) {
+                            playerName = globalPlayerNames.get(0);
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(null, "Select one local or active player!", "Invalid State", JOptionPane.WARNING_MESSAGE);
+                            return;
+                        }
+
+                        if (playerName != null) {
+                            _eventBox.appendText("\nExtension "+info.niceName+" has been used!");
+                            _mailMan.sendMessage(new Command(info.name, playerName));
+                        }
                     }
                     else if (info.parameter.equals("Monster Name")) {
-
+                        List<String> monsterNames = LogicLinker.this._curRoom.getSelectedMonsters();
+                        if (monsterNames.size() == 1) {
+                            _eventBox.appendText("\nExtension "+info.niceName+" has been used!");
+                            _mailMan.sendMessage(new Command(info.name, monsterNames.get(0)));
+                        }
+                        else
+                            JOptionPane.showMessageDialog(null, "Select a monster!", "Invalid State", JOptionPane.WARNING_MESSAGE);
+                    }
+                    else if (info.parameter.equals("Room Name")) {
+                        String selectedRoom = _curRoom.getSelectedRoom();
+                        if (selectedRoom != null) {
+                            _eventBox.appendText("\nExtension "+info.niceName+" has been used!");
+                            _mailMan.sendMessage(new Command(info.name, selectedRoom));
+                        }
+                        else
+                            JOptionPane.showMessageDialog(null, "Select a room!", "Invalid State", JOptionPane.WARNING_MESSAGE);
                     }
                     //If a parameter can't be selected from an EntityContainer it must be entered into the input box.
                     else {
+                        String inputParam = LogicLinker.this._inputBox.getInput();
 
+                        //This will make the input parameter excluded from the command.
+                        if (inputParam.length() == 0 && !info.parameter.equals("<parameter>"))
+                            JOptionPane.showMessageDialog(null, "Enter a valid "+info.parameter+" into the input box!", "Invalid State", JOptionPane.WARNING_MESSAGE);
+                        else if (inputParam.length() == 0 && info.parameter.equals("<parameter>"))
+                            inputParam = null;
+
+                        _eventBox.appendText("\nExtension "+info.niceName+" has been used!");
+                        _mailMan.sendMessage(new Command(info.name, inputParam));
                     }
                 }
                 else

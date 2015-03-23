@@ -3,6 +3,18 @@ A gui client written in Java that uses the Lurk protocol! This is a class projec
 for a server that uses the Lurk protocol. The idea is that this protocol is supposed to be very generic so that this
 client can be used for multiple servers.
 
+# How to Build and Run it?!
+The program can be built using the following command in the root directory:
+```
+gradle clean jar
+```
+
+Then a jar including all of its depencencies should be placed within build/libs/ in the project. The manifest
+attribute for the main class is already set, so run the jar with the following command:
+```
+java -jar LurkClient-1.0.jar
+```
+
 #Lurk Protocol
 
 All messages begin with a 5-letter header, all in caps, followed by a space. The contents after that point vary depending on the type of message.

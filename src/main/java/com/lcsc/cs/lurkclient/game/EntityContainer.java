@@ -50,7 +50,7 @@ public class EntityContainer {
     }
 
     //This makes sure that every added element is unique!
-    public void add(String element) {
+    public void add(final String element) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

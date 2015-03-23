@@ -51,11 +51,13 @@ public class ExtensionInfo {
         this.niceName       = niceName.trim();
         this.type           = type.trim();
         this.description    = description.trim();
-        this.parameter      = parameter.trim();
+        if (parameter.trim().length() == 0 || parameter.trim().equals("<parameter>"))
+            this.parameter      = "<parameter>";
+        else
+            this.parameter      = parameter.trim();
 
         if (this.name.equals("<name>") || this.description.equals("<description>")
-                || this.niceName.equals("<nice name>") || this.type.equals("<type>")
-                || this.parameter.equals("<parameter>"))
+                || this.niceName.equals("<nice name>") || this.type.equals("<type>"))
             _logger.warn("The given ExtensionInfo string has an invalid parameter: "+info);
     }
 }

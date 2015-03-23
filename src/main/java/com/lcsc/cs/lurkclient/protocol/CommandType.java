@@ -12,7 +12,8 @@ public enum CommandType {
     LEAVE("LEAVE"),
     QUERY("QUERY"),
     START("START"),
-    ACTION("ACTON");
+    ACTION("ACTON"),
+    EXTENSION("EXT");
 
     private final String commandName;
 

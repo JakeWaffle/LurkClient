@@ -162,7 +162,7 @@ public class Game implements StateInterface{
         while (!_finished) {
             updateGame();
             try {
-                Thread.sleep(5000);
+                Thread.sleep(2000);
             } catch(InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
