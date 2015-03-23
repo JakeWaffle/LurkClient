@@ -56,18 +56,23 @@ public class EventBox {
     }
 
     public void appendText(String text) {
-        eventText.append("\n"+text);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                eventText.append("\n" + text);
 
-        //This will delete old event text when the line count is above some limit!
-        if (eventText.getLineCount() > MAX_LINES) {
-            int linesToDelete = eventText.getLineCount() - MAX_LINES;
+                //This will delete old event text when the line count is above some limit!
+                if (eventText.getLineCount() > MAX_LINES) {
+                    int linesToDelete = eventText.getLineCount() - MAX_LINES;
 
-            try {
-                int end = eventText.getLineEndOffset(linesToDelete-1);
-                eventText.replaceRange("", 0, end);
-            } catch(BadLocationException e) {
-                logger.error("Line End Offset is Invalid!", e);
+                    try {
+                        int end = eventText.getLineEndOffset(linesToDelete - 1);
+                        eventText.replaceRange("", 0, end);
+                    } catch (BadLocationException e) {
+                        logger.error("Line End Offset is Invalid!", e);
+                    }
+                }
             }
-        }
+        });
     }
 }

@@ -28,6 +28,7 @@ public class LogicLinker {
     private final Room            _curRoom;
     private final EventBox        _eventBox;
     private final InputBox        _inputBox;
+    private final Extensions      _extensions;
     private final ActionButtons   _actionBtns;
 
     public LogicLinker(MailMan mailMan,
@@ -35,13 +36,15 @@ public class LogicLinker {
                        Room curRoom,
                        EventBox eventBox,
                        InputBox inputBox,
-                       ActionButtons actionBtns) {
+                       ActionButtons actionBtns,
+                       Extensions extensions) {
         _mailMan        = mailMan;
         _playerStats    = playerStats;
         _curRoom        = curRoom;
         _eventBox       = eventBox;
         _inputBox       = inputBox;
         _actionBtns     = actionBtns;
+        _extensions     = extensions;
     }
 
     public void setActionListeners() {
@@ -57,130 +60,103 @@ public class LogicLinker {
             public void notify(List<Response> responses) {
                 for (Response response : responses) {
                     if (response.type == ResponseType.QUERY_INFORM) {
-                        Pattern pattern = Pattern.compile(".*(?<!NiceName:).*(Name:)(.*)(Description:)", Pattern.DOTALL);
-                        Matcher matcher = pattern.matcher(response.message);
-                        if (matcher.find())
-                            LogicLinker.this._playerStats.name.setText(matcher.group(2).trim());
-
-                        pattern = Pattern.compile("(Gold:)(.*)(Attack:)", Pattern.DOTALL);
-                        matcher = pattern.matcher(response.message);
-                        if (matcher.find())
-                            LogicLinker.this._playerStats.gold.setText(matcher.group(2).trim());
-
-                        pattern = Pattern.compile("(Attack:)(.*)(Defense:)", Pattern.DOTALL);
-                        matcher = pattern.matcher(response.message);
-                        if (matcher.find())
-                            LogicLinker.this._playerStats.atk.setText(matcher.group(2).trim());
-
-                        pattern = Pattern.compile("(Defense:)(.*)(Regen:)", Pattern.DOTALL);
-                        matcher = pattern.matcher(response.message);
-                        if (matcher.find())
-                            LogicLinker.this._playerStats.def.setText(matcher.group(2).trim());
-
-                        pattern = Pattern.compile("(Regen:)(.*)(Status)", Pattern.DOTALL);
-                        matcher = pattern.matcher(response.message);
-                        if (matcher.find())
-                            LogicLinker.this._playerStats.reg.setText(matcher.group(2).trim());
-
-                        pattern = Pattern.compile("(Status:)(.*)(Location:)", Pattern.DOTALL);
-                        matcher = pattern.matcher(response.message);
-                        if (matcher.find())
-                            LogicLinker.this._playerStats.status.setText(matcher.group(2).trim());
-
-                        pattern = Pattern.compile("(Location:)(.*)(Health:)", Pattern.DOTALL);
-                        matcher = pattern.matcher(response.message);
-                        if (matcher.find())
-                            LogicLinker.this._playerStats.location.setText(matcher.group(2).trim());
-
-                        pattern = Pattern.compile("(Health:)(.*)(Started:)", Pattern.DOTALL);
-                        matcher = pattern.matcher(response.message);
-                        if (matcher.find())
-                            LogicLinker.this._playerStats.health.setText(matcher.group(2).trim());
-
-                        pattern = Pattern.compile("Player:");
-                        matcher = pattern.matcher(response.message);
-                        List<String> playerNames = new ArrayList<String>();
-                        //We need to match the first "Player: " to get an idea of where the player's name starts.
-                        if (matcher.find()) {
-                            //The message starts after this header and ends before the next header.
-                            int start           = matcher.end();
-                            int end             = -1;
-                            while (matcher.find()) {
-                                end             = matcher.start();
-                                playerNames.add(response.message.substring(start+1, end).trim());
-                                start           = matcher.end();
-                            }
-                            playerNames.add(response.message.substring(start+1).trim());
-                        }
-                        LogicLinker.this._curRoom.updateGlobalPlayers(playerNames);
+                        LogicLinker.this.processQueryInfo(response);
+                    }
+                    else if (response.type == ResponseType.NOTIFY ||response.type == ResponseType.REJECTED
+                            || response.type == ResponseType.RESULT) {
+                        LogicLinker.this._eventBox.appendText("\n" + response.message);
+                    }
+                    else if (response.type == ResponseType.MESSAGE) {
+                        LogicLinker.this._eventBox.appendText(response.message);
+                    }
+                    else if (response.type == ResponseType.ROOM_INFORM) {
+                        LogicLinker.this.processRoomInfo(response);
+                    }
+                    else if (response.type == ResponseType.MONSTER_INFORM) {
+                        LogicLinker.this.processMonsterInfo(response);
+                    }
+                    else if (response.type == ResponseType.PLAYER_INFORM) {
+                        LogicLinker.this.processPlayerInfo(response);
                     }
                 }
             }
         });
+    }
 
-        //This will update the information about the room connections.
-        _mailMan.registerListener(new ResponseListener() {
-            @Override
-            public void notify(List<Response> responses) {
-                for (Response response : responses) {
-                    if (response.type == ResponseType.ROOM_INFORM) {
-                        LogicLinker._logger.debug("Room Info: " + response.message);
-                        RoomInfo roomInfo = new RoomInfo(response.message);
+    private synchronized void processQueryInfo(Response response) {
+        Pattern pattern = Pattern.compile(".*(?<!NiceName:).*(Name:)(.*?)(Description:)", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(response.message);
+        if (matcher.find())
+            _playerStats.name.setText(matcher.group(2).trim());
 
-                        LogicLinker.this._eventBox.appendText("Entering " + roomInfo.name + ":\n" + roomInfo.description + "\n");
-                        LogicLinker.this._curRoom.updateRoom(roomInfo);
-                    }
-                }
-            }
-        });
+        pattern = Pattern.compile("(Gold:)(.*?)(Attack:)", Pattern.DOTALL);
+        matcher = pattern.matcher(response.message);
+        if (matcher.find())
+            _playerStats.gold.setText(matcher.group(2).trim());
 
-        //This will update the information about the monsters in the room.
-        _mailMan.registerListener(new ResponseListener() {
-            @Override
-            public void notify(List<Response> responses) {
-                for (Response response : responses) {
-                    if (response.type == ResponseType.MONSTER_INFORM) {
-                        LogicLinker._logger.debug("Monster Info: " + response.message);
-                        LogicLinker.this._curRoom.addMonster(new MonsterInfo(response.message));
-                    }
-                }
-            }
-        });
+        pattern = Pattern.compile("(Attack:)(.*?)(Defense:)", Pattern.DOTALL);
+        matcher = pattern.matcher(response.message);
+        if (matcher.find())
+            _playerStats.atk.setText(matcher.group(2).trim());
 
-        //This will update the information about the players in the room.
-        _mailMan.registerListener(new ResponseListener() {
-            @Override
-            public void notify(List<Response> responses) {
-                for (Response response : responses) {
-                    if (response.type == ResponseType.PLAYER_INFORM) {
-                        PlayerInfo player = new PlayerInfo(response.message);
-                        //This will prevent the player's character from showing up in the list of players!
-                        if (!player.name.equals(LogicLinker.this._playerStats.name.getText())) {
-                            LogicLinker._logger.debug("Player Info: " + response.message);
-                            LogicLinker.this._curRoom.addLocalPlayer(player);
-                        }
-                        else {
-                            LogicLinker._logger.debug("User's Character Info: " + response.message);
-                        }
-                    }
-                }
-            }
-        });
+        pattern = Pattern.compile("(Defense:)(.*?)(Regen:)", Pattern.DOTALL);
+        matcher = pattern.matcher(response.message);
+        if (matcher.find())
+            _playerStats.def.setText(matcher.group(2).trim());
 
-        //This will just update the EventBox with responses from the server.
-        _mailMan.registerListener(new ResponseListener() {
-            @Override
-            public void notify(List<Response> responses) {
-                for (Response response : responses) {
-                    if (response.type == ResponseType.NOTIFY || response.type == ResponseType.MESSAGE)
-                        LogicLinker.this._eventBox.appendText(response.message+"\n");
-                    else if (response.type == ResponseType.REJECTED)
-                        LogicLinker.this._eventBox.appendText(response.message+"\n");
-                    else if (response.type == ResponseType.RESULT)
-                        LogicLinker.this._eventBox.appendText(response.message+"\n");
-                }
-            }
-        });
+        pattern = Pattern.compile("(Regen:)(.*?)(Status)", Pattern.DOTALL);
+        matcher = pattern.matcher(response.message);
+        if (matcher.find())
+            _playerStats.reg.setText(matcher.group(2).trim());
+
+        pattern = Pattern.compile("(Status:)(.*?)(Location:)", Pattern.DOTALL);
+        matcher = pattern.matcher(response.message);
+        if (matcher.find())
+            _playerStats.status.setText(matcher.group(2).trim());
+
+        pattern = Pattern.compile("(Location:)(.*?)(Health:)", Pattern.DOTALL);
+        matcher = pattern.matcher(response.message);
+        if (matcher.find())
+            _playerStats.location.setText(matcher.group(2).trim());
+
+        pattern = Pattern.compile("(Health:)(.*?)(Started:)", Pattern.DOTALL);
+        matcher = pattern.matcher(response.message);
+        if (matcher.find())
+            _playerStats.health.setText(matcher.group(2).trim());
+
+        pattern = Pattern.compile("Player:(.*?)(\n|$)");
+        matcher = pattern.matcher(response.message);
+        List<String> playerNames = new ArrayList<String>();
+        //We need to match the first "Player: " to get an idea of where the player's name starts.
+        while (matcher.find()) {
+            playerNames.add(matcher.group(1).trim());
+        }
+        _curRoom.updateGlobalPlayers(playerNames);
+    }
+
+    private synchronized void processRoomInfo(Response response) {
+        LogicLinker._logger.debug("Room Info: " + response.message);
+        RoomInfo roomInfo = new RoomInfo(response.message);
+
+        LogicLinker.this._eventBox.appendText("\nEntering " + roomInfo.name + ":\n" + roomInfo.description);
+        LogicLinker.this._curRoom.updateRoom(roomInfo);
+    }
+
+    private synchronized void processMonsterInfo(Response response) {
+        LogicLinker._logger.debug("Monster Info: " + response.message);
+        LogicLinker.this._curRoom.addMonster(new MonsterInfo(response.message));
+    }
+
+    private synchronized void processPlayerInfo(Response response) {
+        PlayerInfo player = new PlayerInfo(response.message);
+        //This will prevent the player's character from showing up in the list of players!
+        if (!player.name.equals(LogicLinker.this._playerStats.name.getText())) {
+            LogicLinker._logger.debug("Player Info: " + response.message);
+            LogicLinker.this._curRoom.addLocalPlayer(player);
+        }
+        else {
+            LogicLinker._logger.debug("User's Character Info: " + response.message);
+        }
     }
 
     private void setButtonListeners() {
@@ -223,7 +199,6 @@ public class LogicLinker {
 
                         LogicLinker.this._mailMan.sendMessage(new Command(CommandType.ACTION, ActionType.MESSAGE, message));
                     }
-                    LogicLinker.this._eventBox.appendText("\n");
                 }
                 else if (LogicLinker.this._inputBox.isInputEmpty()) {
                     JOptionPane.showMessageDialog(null, "Enter a message into the input box!", "Invalid State", JOptionPane.WARNING_MESSAGE);
@@ -240,7 +215,7 @@ public class LogicLinker {
                     List<String> playerNames = _curRoom.getGlobalPlayers();
                     String userInput = LogicLinker.this._inputBox.getInput();
 
-                    LogicLinker.this._eventBox.appendText(String.format("(Public)>%s\n",
+                    LogicLinker.this._eventBox.appendText(String.format("(Public)>%s",
                             userInput));
 
                     for (String playerName : playerNames) {
@@ -267,7 +242,7 @@ public class LogicLinker {
                 if (monsterNames.size() > 0) {
                     for (String monsterName : monsterNames) {
                         MonsterInfo monsterInfo = LogicLinker.this._curRoom.getMonsterInfo(monsterName);
-                        LogicLinker.this._eventBox.appendText(monsterInfo.info+"\n");
+                        LogicLinker.this._eventBox.appendText("\n"+monsterInfo.info);
                     }
                     nothingSelected = false;
                 }
@@ -276,13 +251,48 @@ public class LogicLinker {
                 if (playerNames.size() > 0) {
                     for (String playerName : playerNames) {
                         PlayerInfo playerInfo = LogicLinker.this._curRoom.getLocalPlayerInfo(playerName);
-                        LogicLinker.this._eventBox.appendText(playerInfo.info+"\n");
+                        LogicLinker.this._eventBox.appendText("\n"+playerInfo.info);
                     }
+                    nothingSelected = false;
+                }
+
+                String extensionNiceName = _extensions.getSelectedExtension();
+                if (extensionNiceName != null) {
+                    ExtensionInfo info = _extensions.getExtensionInfo(extensionNiceName);
+                    LogicLinker.this._eventBox.appendText("\n"+info.info);
                     nothingSelected = false;
                 }
 
                 if (nothingSelected)
                     JOptionPane.showMessageDialog(null, "Select a local player or a monster!", "Invalid State", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        _actionBtns.extBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String extensionNiceName = _extensions.getSelectedExtension();
+                if (extensionNiceName != null) {
+                    ExtensionInfo info = _extensions.getExtensionInfo(extensionNiceName);
+
+                    //These are all unique parameter names that mean that the parameter can be selected from
+                    //one of the EntityContainers!
+                    if (info.parameter.equals("Being")) {
+
+                    }
+                    else if (info.parameter.equals("Player Name")) {
+
+                    }
+                    else if (info.parameter.equals("Monster Name")) {
+
+                    }
+                    //If a parameter can't be selected from an EntityContainer it must be entered into the input box.
+                    else {
+
+                    }
+                }
+                else
+                    JOptionPane.showMessageDialog(null, "Select an extension!", "Invalid State", JOptionPane.WARNING_MESSAGE);
             }
         });
     }

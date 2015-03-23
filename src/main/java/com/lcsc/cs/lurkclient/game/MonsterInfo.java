@@ -23,7 +23,7 @@ public class MonsterInfo {
     public MonsterInfo(String info) {
         this.info      = info;
 
-        Pattern pattern = Pattern.compile("Name:|Description:|Health:|Gold:|Attack:|Defense:|Regen:|Status:");
+        Pattern pattern = Pattern.compile("(Name:|Description:|Health:|Gold:|Attack:|Defense:|Regen:|Status:)(.*?)(\n|$)");
         Matcher matcher = pattern.matcher(info);
 
         String name         = "<name>";
@@ -33,50 +33,23 @@ public class MonsterInfo {
         String defense      = "<defense>";
         String regen        = "<regen>";
 
-        if (matcher.find()) {
-            //The message starts after this header and ends before the next header.
-            int start           = matcher.end();
-            int end             = -1;
-            String type         = matcher.group();
-            while (matcher.find()) {
-                end             = matcher.start();
-
-                if (type.equals("Name:"))
-                    name        = info.substring(start, end);
-                else if (type.equals("Description:"))
-                    description = info.substring(start, end);
-                else if (type.equals("Health:"))
-                    health      = info.substring(start, end);
-                else if (type.equals("Attack:"))
-                    attack      = info.substring(start, end);
-                else if (type.equals("Defense:"))
-                    defense     = info.substring(start, end);
-                else if (type.equals("Regen:"))
-                    regen       = info.substring(start, end);
-                else
-                    _logger.warn("Invalid Regex group for MonsterInfo: " + type);
-
-                type            = matcher.group();
-                start           = matcher.end();
-            }
-
+        while (matcher.find()) {
+            String type = matcher.group(1);
             if (type.equals("Name:"))
-                name        = info.substring(start);
+                name = matcher.group(2);
             else if (type.equals("Description:"))
-                description = info.substring(start);
+                description = matcher.group(2);
             else if (type.equals("Health:"))
-                health      = info.substring(start);
+                health = matcher.group(2);
             else if (type.equals("Attack:"))
-                attack      = info.substring(start);
+                attack = matcher.group(2);
             else if (type.equals("Defense:"))
-                defense     = info.substring(start);
+                defense = matcher.group(2);
             else if (type.equals("Regen:"))
-                regen       = info.substring(start);
+                regen = matcher.group(2);
             else
-                _logger.warn("Invalid Regex group for RoomInfo: "+type);
+                _logger.warn("Invalid Regex group for MonsterInfo: " + type);
         }
-        else
-            _logger.warn("The given PlayerInfo string is invalid: "+info);
 
         this.name           = name.trim();
         this.description    = description.trim();

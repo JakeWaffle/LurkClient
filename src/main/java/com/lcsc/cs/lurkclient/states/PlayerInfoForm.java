@@ -1,5 +1,6 @@
 package com.lcsc.cs.lurkclient.states;
 
+import com.lcsc.cs.lurkclient.game.PlayerInfo;
 import com.lcsc.cs.lurkclient.protocol.*;
 import com.lcsc.cs.lurkclient.tools.DocumentSizeFilter;
 
@@ -29,6 +30,7 @@ public class PlayerInfoForm implements StateInterface {
     private boolean     endProgram;
     private boolean     finished;
     private State       nextState;
+    private Map<String,String> nextStateParams;
 
     private MailMan     mailMan;
 
@@ -41,6 +43,7 @@ public class PlayerInfoForm implements StateInterface {
     public PlayerInfoForm() {
         this.endProgram = false;
         this.finished   = false;
+        nextStateParams = new HashMap<String, String>();
 
         this.statsSet   = 0;
     }
@@ -52,9 +55,15 @@ public class PlayerInfoForm implements StateInterface {
         this.mailMan.registerListener(new ResponseListener() {
             @Override
             public void notify(List<Response> responses) {
-                for (Response response : responses) {
-                    if (response.type == ResponseType.QUERY_INFORM) {
-                        Pattern pattern = Pattern.compile("(GameDescription:)(.*?)((?<!NiceName:)Name:|Extension:)", Pattern.DOTALL);
+                for (Response response: responses) {
+                    if (response.type == ResponseType.ACCEPTED || response.type == ResponseType.REJECTED) {
+                        PlayerInfoForm.this.handleStats(response);
+                    }
+                    else if (response.type == ResponseType.QUERY_INFORM && PlayerInfoForm.this.nextState == State.GAME) {
+                        PlayerInfoForm.this.handleQueryResults(response);
+                    }
+                    else if (response.type == ResponseType.QUERY_INFORM && PlayerInfoForm.this.nextState != State.GAME) {
+                        Pattern pattern = Pattern.compile("(GameDescription:)(.*?)(Name:|Extension:)", Pattern.DOTALL);
                         Matcher matcher = pattern.matcher(response.message);
 
                         if (matcher.find())
@@ -64,17 +73,6 @@ public class PlayerInfoForm implements StateInterface {
                                 logger.error("The game description text is null for some reason?");
                         else
                             logger.error("The game description was unable to be found!");
-                    }
-                }
-            }
-        });
-
-        this.mailMan.registerListener(new ResponseListener() {
-            @Override
-            public void notify(List<Response> responses) {
-                for (Response response: responses) {
-                    if (response.type == ResponseType.ACCEPTED || response.type == ResponseType.REJECTED) {
-                        PlayerInfoForm.this.handleStats(response);
                     }
                 }
             }
@@ -320,7 +318,6 @@ public class PlayerInfoForm implements StateInterface {
         c.gridy         = 5;
         panel.add(connectBtn, c);
 
-        //This will tell the server to send us the game description!
         this.mailMan.sendMessage(new Command(CommandType.QUERY));
 
         return panel;
@@ -342,8 +339,8 @@ public class PlayerInfoForm implements StateInterface {
                 break;
             case "Fine":
                 if (this.statsSet == 3) {
+                    this.mailMan.sendMessage(new Command(CommandType.QUERY));
                     this.nextState = State.GAME;
-                    this.finished = true;
                 }
                 this.statsSet += 1;
                 break;
@@ -351,6 +348,11 @@ public class PlayerInfoForm implements StateInterface {
                 logger.error("Invalid Response for PlayerInfoForm:\n"+response.toString());
                 break;
         }
+    }
+
+    private synchronized void handleQueryResults(Response response) {
+        this.nextStateParams.put("QUERY", response.message);
+        this.finished = true;
     }
 
     public boolean run() {
@@ -373,9 +375,7 @@ public class PlayerInfoForm implements StateInterface {
     }
 
     public Map<String,String> getNextStateParams() {
-        Map<String, String> params = new HashMap<String, String>();
-
-        return params;
+        return this.nextStateParams;
     }
 
     public void cleanUp() {

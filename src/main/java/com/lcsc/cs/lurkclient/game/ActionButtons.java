@@ -2,6 +2,7 @@ package com.lcsc.cs.lurkclient.game;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 /**
  * Created by Jake on 3/14/2015.
@@ -12,6 +13,7 @@ public class ActionButtons {
     public final JButton privateMessageBtn;
     public final JButton publicMessageBtn;
     public final JButton infoBtn;
+    public final JButton extBtn;
 
     public ActionButtons(JPanel mainPanel, int x, int y, int btnPanelHeight) {
         JPanel buttonPanel  = new JPanel(new GridBagLayout());
@@ -24,7 +26,7 @@ public class ActionButtons {
 
         GridBagConstraints c = new GridBagConstraints();
         c.weightx = c.weighty = 1.0;
-        c.insets        = new Insets(0, 0, 10, 0);
+        c.insets        = new Insets(10, 0, 10, 0);
         c.fill              = GridBagConstraints.HORIZONTAL;
         c.gridy             = 0;
         buttonPanel.add(fightBtn, c);
@@ -81,10 +83,22 @@ public class ActionButtons {
         c.gridy             = 4;
         buttonPanel.add(infoBtn, c);
 
+        extBtn      = new JButton("Use Extension");
+
+        oldFont             = extBtn.getFont();
+        newFont             = new Font(oldFont.getFontName(), Font.PLAIN, 20);
+        extBtn.setFont(newFont);
+
+        c                   = new GridBagConstraints();
+        c.weightx = c.weighty = 1.0;
+        c.fill              = GridBagConstraints.HORIZONTAL;
+        c.insets            = new Insets(0, 0, 10, 0);
+        c.gridy             = 5;
+        buttonPanel.add(extBtn, c);
+
         c                   = new GridBagConstraints();
         c.weightx = c.weighty = 1.0;
         c.gridheight        = btnPanelHeight;
-        c.insets            = new Insets(0, 5, 0, 10);
         c.gridx             = x;
         c.gridy             = y;
         mainPanel.add(buttonPanel, c);

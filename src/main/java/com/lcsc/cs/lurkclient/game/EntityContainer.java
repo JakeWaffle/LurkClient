@@ -51,17 +51,17 @@ public class EntityContainer {
 
     //This makes sure that every added element is unique!
     public void add(String element) {
-        if (!_entities.contains(element)) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (!_entities.contains(element)) {
                     _entities.addElement(element);
                     _logger.debug(String.format("Element added to EntityContainer: %s", element));
                 }
-            });
-        }
-        else
-            _logger.debug(String.format("Element already exists in EntityContainer: %s", element));
+                else
+                    _logger.debug(String.format("Element already exists in EntityContainer: %s", element));
+            }
+        });
     }
 
     /**

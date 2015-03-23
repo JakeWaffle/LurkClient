@@ -24,12 +24,14 @@ public class LoginForm implements StateInterface {
     private boolean     endProgram;
     private boolean     finished;
     private State       nextState;
+    private Map<String, String> nextStateParams;
 
     private MailMan     mailMan;
 
     public LoginForm() {
         this.endProgram = false;
         this.finished   = false;
+        this.nextStateParams = new HashMap<String, String>();
     }
 
     //There shouldn't be any parameters for this state.
@@ -40,7 +42,13 @@ public class LoginForm implements StateInterface {
             @Override
             public void notify(List<Response> responses) {
                 for (Response response : responses)
-                    LoginForm.this.handleLogin(response);
+                    if (response.type == ResponseType.ACCEPTED || response.type == ResponseType.REJECTED) {
+                        LoginForm.this.handleLogin(response);
+                    }
+                    else if (response.type == ResponseType.QUERY_INFORM) {
+                        LoginForm.this.handleQueryResults(response);
+                    }
+
             }
         });
     }
@@ -118,9 +126,8 @@ public class LoginForm implements StateInterface {
                     this.finished = true;
                     break;
                 case "reprising player":
-                    //Go directly to the game using your old character.
+                    this.mailMan.sendMessage(new Command(CommandType.QUERY));
                     this.nextState = State.GAME;
-                    this.finished = true;
                     break;
                 default:
                     logger.error("Invalid Response for LoginForm:\n" + response.toString());
@@ -130,6 +137,11 @@ public class LoginForm implements StateInterface {
         else {
             logger.debug("Unneeded Response:\n"+response.toString());
         }
+    }
+
+    private synchronized void handleQueryResults(Response response) {
+        this.nextStateParams.put("QUERY", response.message);
+        this.finished = true;
     }
 
     public boolean run() {
@@ -152,9 +164,7 @@ public class LoginForm implements StateInterface {
     }
 
     public Map<String,String> getNextStateParams() {
-        Map<String, String> params = new HashMap<String, String>();
-
-        return params;
+        return this.nextStateParams;
     }
 
     public void cleanUp() {

@@ -7,8 +7,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.security.cert.Extension;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Jake on 3/8/2015.
@@ -17,24 +22,26 @@ import java.util.Map;
 public class Game implements StateInterface{
     private static final Logger _logger = LoggerFactory.getLogger(LoginForm.class);
 
-    private boolean         _endProgram;
-    private boolean         _finished;
-    private State           nextState;
+    private boolean             _endProgram;
+    private boolean             _finished;
+    private Map<String, String> _params;
 
-    private MailMan         _mailMan;
+    private State               _nextState;
 
-    private Room            _curRoom;
-    private EntityContainer _rooms;
-    private EntityContainer _monsters;
-    private EntityContainer _localPlayers;
-    private EntityContainer _globalPlayers;
-    private PlayerStats     _stats;
+    private MailMan             _mailMan;
 
-    private EventBox        _eventBox;
-    private InputBox        _inputBox;
-    private ActionButtons   _actionBtns;
+    private Room                _curRoom;
+    private EntityContainer     _rooms;
+    private EntityContainer     _monsters;
+    private EntityContainer     _localPlayers;
+    private EntityContainer     _globalPlayers;
+    private PlayerStats         _stats;
 
-    private LogicLinker     _linker;
+    private EventBox            _eventBox;
+    private InputBox            _inputBox;
+    private ActionButtons       _actionBtns;
+
+    private LogicLinker         _linker;
 
     public Game() {
         this._endProgram = false;
@@ -43,7 +50,8 @@ public class Game implements StateInterface{
 
     //There shouldn't be any parameters for this state.
     public void init(Map<String,String> params, MailMan mailMan) {
-        this._mailMan = mailMan;
+        _params = params;
+        _mailMan = mailMan;
     }
 
     public JPanel createState() {
@@ -108,9 +116,35 @@ public class Game implements StateInterface{
 
         panel.add(mainPanel, c);
 
-        _actionBtns = new ActionButtons(panel, 2, 1, 3);
 
-        _linker = new LogicLinker(_mailMan, _stats, _curRoom, _eventBox, _inputBox, _actionBtns);
+        List<ExtensionInfo> extensionInfo = new ArrayList<ExtensionInfo>();
+
+        if (_params.containsKey("QUERY")) {
+            String queryInfo = _params.get("QUERY");
+
+            Pattern pattern = Pattern.compile("(Extension:.*?)(\n\n)", Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(queryInfo);
+
+            while (matcher.find()) {
+                extensionInfo.add(new ExtensionInfo(matcher.group(1).trim()));
+            }
+        }
+
+        JPanel rightPanel   = new JPanel(new GridBagLayout());
+
+        Extensions extensions = new Extensions(rightPanel, 0, 0, extensionInfo);
+        _actionBtns     = new ActionButtons(rightPanel, 0, 2, 1);
+
+        c               = new GridBagConstraints();
+        c.weightx = c.weighty = 1.0;
+        c.gridheight        = 3;
+        c.insets            = new Insets(0, 5, 0, 10);
+        c.gridx             = 2;
+        c.gridy             = 1;
+
+        panel.add(rightPanel, c);
+
+        _linker = new LogicLinker(_mailMan, _stats, _curRoom, _eventBox, _inputBox, _actionBtns, extensions);
         _linker.setActionListeners();
 
         return panel;
@@ -139,7 +173,7 @@ public class Game implements StateInterface{
     }
 
     public State getNextState() {
-        return nextState;
+        return _nextState;
     }
 
     public Map<String,String> getNextStateParams() {
