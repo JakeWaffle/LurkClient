@@ -72,7 +72,7 @@ public class MailBox extends Thread {
                 }
                 //This is the place where we must not trust the INFORM message, because we have no idea if it's
                 //complete or not until we check that message size and compare accordingly.
-                if (type == ResponseType.INFORM) {
+                if (type == ResponseType.INFORM && message.length() >= start+1 && (start+1) > 0) {
                     String suspiciousMsg = message.substring(start + 1);
 
                     pattern = Pattern.compile("[0-9]+");
@@ -82,30 +82,34 @@ public class MailBox extends Thread {
                     if (matcher.find()) {
                         String sMsgLength = matcher.group();
                         msgLength = sMsgLength.length();
-                        msgLength += Integer.parseInt(sMsgLength);
 
-                        //The message is complete!
-                        if (suspiciousMsg.length() == msgLength) {
-                            Response newResp = new Response(type, message.substring(start + 1));
-                            responses.add(newResp);
-                        }
-                        //We've got an incomplete message that will be handled in the next iteration of the
-                        //while loop.
-                        else if (suspiciousMsg.length() < msgLength) {
-                            //We can't forget the header, that's really important!
-                            //It was cut off when we were using the regex.
-                            incompleteMsg = "INFOM "+suspiciousMsg;
-                        }
-                        //If this ever would happen, it would be because of an invalid header or lack there of.
-                        //So the extras will be tossed away.
-                        else if (suspiciousMsg.length() > msgLength) {
-                            _logger.error("The INFOM message is larger than the message length: INFOM "+suspiciousMsg);
-                            _logger.error("Tossing extra part of the INFOM message: "+suspiciousMsg.substring(msgLength));
-                            Response newResp = new Response(type, message.substring(start + 1, msgLength));
-                            responses.add(newResp);
-                        }
-                        else {
-                            _logger.error("The suspiciousMsg is very suspicious, this shouldn't happen at all!");
+                        try {
+                            msgLength += Integer.parseInt(sMsgLength);
+
+                            //The message is complete!
+                            if (suspiciousMsg.length() == msgLength) {
+                                Response newResp = new Response(type, message.substring(start + 1));
+                                responses.add(newResp);
+                            }
+                            //We've got an incomplete message that will be handled in the next iteration of the
+                            //while loop.
+                            else if (suspiciousMsg.length() < msgLength) {
+                                //We can't forget the header, that's really important!
+                                //It was cut off when we were using the regex.
+                                incompleteMsg = "INFOM " + suspiciousMsg;
+                            }
+                            //If this ever would happen, it would be because of an invalid header or lack there of.
+                            //So the extras will be tossed away.
+                            else if (suspiciousMsg.length() > msgLength) {
+                                _logger.error("The INFOM message is larger than the message length: INFOM " + suspiciousMsg);
+                                _logger.error("Tossing extra part of the INFOM message: " + suspiciousMsg.substring(msgLength));
+                                Response newResp = new Response(type, message.substring(start + 1, msgLength));
+                                responses.add(newResp);
+                            } else {
+                                _logger.error("The suspiciousMsg is very suspicious, this shouldn't happen at all!");
+                            }
+                        } catch(Exception e) {
+                            _logger.error("Something happened when dealing with the INFOM (probably due to Kyle...)", e);
                         }
                     }
                     //An INFOM should at least have a msg length after it!
@@ -114,7 +118,7 @@ public class MailBox extends Thread {
                     }
                 }
                 //No INFOM message means no incomplete message, uhuru! :D
-                else {
+                else if (message.length() >= start+1 && (start+1) > 0){
                     Response newResp = new Response(type, message.substring(start + 1));
                     responses.add(newResp);
                 }
