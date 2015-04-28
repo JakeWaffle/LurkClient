@@ -117,6 +117,7 @@ public class LoginForm implements StateInterface {
             switch (response.message.toLowerCase()) {
                 case "name already taken":
                 case "dead without health":
+                case "incorrect state":
                     //I don't think anything should be done in this case?
                     JOptionPane.showMessageDialog(null, response.getResponse(), "Login Response", JOptionPane.INFORMATION_MESSAGE);
                     break;

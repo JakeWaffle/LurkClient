@@ -83,6 +83,12 @@ public class Response {
     }
 
     public String toString(){
-        return String.format(String.format("Response Type: %s\nResponse:%s", type.toString(), message));
+        String str = "";
+        try {
+            str = String.format(String.format("Response Type: " + type.toString() + "\nResponse: " + message));
+        } catch(Exception e) {
+            _logger.error("Kyle probably was being mean again...", e);
+        }
+        return str;
     }
 }
