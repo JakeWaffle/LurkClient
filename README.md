@@ -9,7 +9,7 @@ The program can be built using the following command in the root directory:
 gradle clean jar
 ```
 
-Then a jar including all of its depencencies should be placed within build/libs/ in the project. The manifest
+Then a jar including all of its dependencies should be placed within build/libs/ in the project. The manifest
 attribute for the main class is already set, so run the jar with the following command:
 ```
 java -jar LurkClient-1.0.jar
